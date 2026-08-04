@@ -1,5 +1,8 @@
 import React, { useState } from 'react'
 import axios from 'axios'
+import { GoogleLogin } from '@react-oauth/google'
+import { Navigate, useNavigate } from 'react-router-dom'
+import API from '../api/axios.js'
 
 const Register = () => {
 
@@ -19,53 +22,85 @@ const Register = () => {
     }
 
     const handleSubmit = async (e) => {
-        
+        // console.log("sdf");
+
         e.preventDefault()
-        try{
+        try {
 
-        const res = await axios.post('http://localhost:4000/user/register', form)
-        alert(res.data.message)
+            const res = await API.post('user/register', form)
+            alert(res.data.message)
 
-        }catch (err) {
+        } catch (err) {
             console.log(err)
+            alert(err.response?.data?.message || "Registra on failed");
         }
     }
 
-  return (
-    <div>
-        <form onSubmit={handleSubmit}>
+    const handleGoogleSuccess = async (CredentialResponse) => {
+        try {
 
-            <input type="text" 
-            placeholder='name'
-            name='name' 
-            onChange={handleChange}
-            />
-            <br /> <br />
-            <input type="email"
-            placeholder='email' 
-            name='name'
-            onChange={handleChange}
-            />
-            <br /><br />
+            const res = await API.post("/user/google-login", {
+                Credential: CredentialResponse.Credential,
+            });
 
-            <input type="password"
-            placeholder='password' 
-            name='name'
-            onChange={handleChange}
-            />
-            <br /> <br />
+            localStorage.setItem("token", res.data.token);
 
-            <input type="number"
-            placeholder='phone' 
-            name='name'
-            onChange={handleChange}
-            />
-            <br /> <br />
+            Navigate("/dashboard");
 
-            <button>Register</button>
-        </form>
-    </div>
-  )
+
+        } catch (err) {
+            alert(err.response?.data?.message || "Google Login Failed");
+        }
+    }
+
+    return (
+        <div>
+            <h2>Register</h2>
+            <form onSubmit={handleSubmit}>
+
+                <input type="text"
+                    placeholder='name'
+                    name='name'
+                    onChange={handleChange}
+                />
+                <br /> <br />
+                <input type="email"
+                    placeholder='email'
+                    name='email'
+                    onChange={handleChange}
+                />
+                <br /><br />
+
+                <input type="password"
+                    placeholder='password'
+                    name='password'
+                    onChange={handleChange}
+                />
+                <br /> <br />
+
+                <input type="phone"
+                    placeholder='phone'
+                    name='phone'
+                    onChange={handleChange}
+                />
+                <br /> <br />
+
+                <button type='submit'>Register</button>
+            </form>
+
+            <br />
+            <hr />
+            <br />
+
+            <GoogleLogin
+            onSuccess={handleGoogleSuccess}
+            onError={() => console.log("login Failed")}
+            />
+        </div>
+    )
 }
+
+
+
 
 export default Register
