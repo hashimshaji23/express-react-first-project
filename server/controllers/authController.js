@@ -4,7 +4,7 @@ import bcrypt from "bcrypt";
 import { OAuth2Client } from "google-auth-library";
 import jwt from "jsonwebtoken"
 import { sendTokenResponse } from "../utils/generateToken.js";
-import { use } from "react";
+// import { use } from "react";
 
 export const Register = async (req, res, next) => {
 
@@ -188,9 +188,96 @@ export const login = async (req, res, next) => {
             }
         }
 
-
-        
+        sendTokenResponse(user, 200, res);
     }catch(err) {
         console.log(err, "from login fun");
+    }
+}
+
+export const logout = async (req, res) => {
+    try {
+
+        const user = await User.findOne( { email: req.body.email } );
+        if (!user) return res.status(404).json({success: false, message: "No user with that email"});
+    
+        const restToken = crypto.randomBytes(20).toString("hex");
+        user.resetPasswordToken = crypto.createHash("sha256").update(restToken).digest("hex");
+        user.resetPasswordExpire = Date.now() + 15 * 60 * 1000;
+        await user.save();
+
+        const resetUrl = `${process.env.CLIENT_URL}/reset-password/${resetToken}`;
+
+        await sendEmail({
+            to: user.email,
+            subject: "password Reset Request",
+            html: `<p>Click <a href="${resetUrl}">here</a> to reset your password. Link expires in 15 minutes. </p>`,
+        });
+
+        res.status(200).json({
+            success: true, message: "Reset link sent to email"
+        });
+
+    }catch (err) {
+        console.log(err, "from logout")
+    }
+}
+
+export const forgotPassword = async (req, res, next) => {
+    try{
+
+        const user = await User.findOne ({ email: req.body.email });
+        if (!user) return res.status(404).json({ success: false, message: "NO user with that email" });
+
+        const resetToken = crypto.randomBytes(20).toString("hex");
+        user.resetPasswordToken = crypto.createHash("sha56").update(resetToken).digest("hex");
+        user.resetPasswordExpire = Date.now() + 15 * 60 * 1000;
+        await user.save();
+
+        const resetUrl = `${process.env.CLIENT_URL}/reset-password/${resetToken}`;
+
+        await sendEmail ({
+            to: user.email,
+            subject: "password Reset Request",
+            html: `<p>Click <a href="${resetUrl}">here</a> to reset your password. Link expires in 15 minutes.</p>`,
+        });
+        res.status(200).json({ success:true, message: "Reset link sent to email" });
+
+    }catch (err) {
+        console.log(err, "from forgotPass")
+    }
+}
+
+export const resetPassword = async (req, res, next) => {
+    try {
+
+        const resetPasswordToken = crypto 
+        .createHash("sha256")
+       . update(req.params.resetToken)
+       .digest("hex");
+
+       const user = await User.findOne({ resetPasswordToken, resetPasswordExpire: { $gt: Date.now() }, });
+
+       if (!user) {
+        return res.status(400).json({ success: false, message: "Invalid or expired reset token" });
+       }
+
+       user.password = req.body.password;
+       user.resetPasswordToken = undefined;
+       user.resetPasswordExpire = undefined;
+       await user.save();
+
+       sendTokenResponse(user, 200, res);
+
+    }catch (err) {
+        console.log(err, "reset pass")
+    }
+}
+
+export const getMe = async (req, res, next) => {
+    try {
+        res.status(200).json({success: true, user: req.user});
+
+    }catch (err){
+        console.log(err, "from get me")
     }
 }

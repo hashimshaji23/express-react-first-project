@@ -2,7 +2,7 @@ import express from "express";
 import dotenv from "dotenv";
 import cors from 'cors'
 import connection from "./config/db.js";
-import userRoute from "./routes/userRoute.js"
+import userRoute from "./routes/authRoutes.js"
 
 
 
@@ -15,7 +15,7 @@ const port = process.env.PORT
 connection()
 
 app.use(express.json())
-app.use('/user', userRoute)
+app.use('/api/auth', authRoutes )
 
 app.listen(port, () => {
     console.log(` server is running on port ${port}`)
