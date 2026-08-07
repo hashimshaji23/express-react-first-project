@@ -10,8 +10,8 @@ const Register = () => {
         name: "",
         email: "",
         password: "",
-        phone: "",
-        role: "user"
+        // phone: "",
+        // role: "user"
     })
 
     const handleChange = (e) => {
@@ -27,7 +27,7 @@ const Register = () => {
         e.preventDefault()
         try {
 
-            const res = await API.post('user/register', form)
+            const res = await API.post('/api/auth/register', form)
             alert(res.data.message)
 
         } catch (err) {
@@ -78,12 +78,6 @@ const Register = () => {
                 />
                 <br /> <br />
 
-                <input type="phone"
-                    placeholder='phone'
-                    name='phone'
-                    onChange={handleChange}
-                />
-                <br /> <br />
 
                 <button type='submit'>Register</button>
             </form>
