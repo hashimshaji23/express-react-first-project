@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import bcrypt from "bcrypt"
+import bcrypt from "bcrypt";
 
 const addressSchema = new mongoose.Schema({
     label: { type: String, default: "Home" },
