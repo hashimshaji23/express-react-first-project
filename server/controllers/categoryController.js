@@ -12,13 +12,13 @@ export const createCategory = async (req, res, next) => {
             return res.status(400).json({ success: false, message: "Category alredy exists" });
         };
 
-        let image;
+        // let image;
         if (req.file) {
             const result = await uploadBufferToCloudinary(req.file.buffer, "categories");
-            image = { url: result.secure_url, public_id: result.public_id };
+            // image = { url: result.secure_url, public_id: result.public_id };
         }
 
-        const category = await Category.create({ name, slug, description, image });
+        const category = await Category.create({ name, slug, description });
         res.status(201).json({ success: true, category });
 
 

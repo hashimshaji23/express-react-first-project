@@ -33,23 +33,23 @@ const userSchema = new mongoose.Schema({
         type: String,
         require: true,
         minlength: 6,
-        select: false
+        // select: false
     },
     role: {
         type: String,
-        enum: ["customer", "admin", "delivery"],
-        default: "customer"
+        enum: ["customer", "admin"],
+        default: "customer",
     },
     avatar: { url: String, public_id: String },
 
     addresses: [addressSchema],
 
-    isEmailVerified: { type: Boolean, default: false },
+    // isEmailVerified: { type: Boolean, default: false },
 
-    emailOtp: { type: String, select: false },
-    emailOtpExpire: { type: Date, select: false },
-    resetPasswordToken: { type: String, select: false },
-    resetPasswordExpire: { type: Date, select: false },
+    // emailOtp: { type: String, select: false },
+    // emailOtpExpire: { type: Date, select: false },
+    // resetPasswordToken: { type: String, select: false },
+    // resetPasswordExpire: { type: Date, select: false },
 
     // otp: {
     //     type: String
@@ -64,15 +64,15 @@ const userSchema = new mongoose.Schema({
     // }
 }, { timestamps: true })
 
-userSchema.pre("save", async function (next) {
-    if (!this.isModified("password")) return next();
-    this.password = await bcrypt.hash(this.password, 10);
-    // next();
-});
+// userSchema.pre("save", async function (next) {
+//     if (!this.isModified("password")) return next();
+//     this.password = await bcrypt.hash(this.password, 10);
+//     // next();
+// });
 
-userSchema.methods.comparePassword = async function (candidatePassword) {
-    return await bcrypt.compare(candidatePassword, this.password);
-};
+// userSchema.methods.comparePassword = async function (candidatePassword) {
+//     return await bcrypt.compare(candidatePassword, this.password);
+// };
 
 const User = mongoose.model('userData', userSchema)
 

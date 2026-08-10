@@ -6,7 +6,7 @@ import { slugify } from "../utils/slugify.js";
 export const createProduct = async (req, res, next) => {
     try {
         const {
-            name, description, category, subCategory, brand, sku, price,
+            name, description, category, brand, price,
             discountPrice, stock,
         } = req.body;
 
@@ -22,15 +22,14 @@ export const createProduct = async (req, res, next) => {
         }
 
         const product = await Product.create({
-            name, slug, description, category, subCategory,
-            brand, sku, price, discountPrice, stock, images,
+            name, slug, description, category,
+            brand, price, discountPrice, stock, 
         });
 
         res.status(201).json({ success: true, product });
 
     } catch (err) {
         console.log(err, "from create product");
-
     }
 }
 

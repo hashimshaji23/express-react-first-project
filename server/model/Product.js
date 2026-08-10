@@ -6,9 +6,7 @@ const productSchema = new mongoose.Schema(
         slug: { type: String, required: true, unique: true, lowercase: true },
         description: { type: String, required: true },
         category: { type: mongoose.Schema.Types.ObjectId, ref: "Category", required: true },
-        subCategory: { type: mongoose.Schema.Types.ObjectId, ref: "SubCategory" },
         brand: { type: String, trim: true },
-        sku: { type: String, unique: true, sparse: true, trim: true },
 
         price: { type: Number, required: true, min: 0 },
         discountPrice: { type: Number, min: 0 },
