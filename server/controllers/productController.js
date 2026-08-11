@@ -18,7 +18,7 @@ export const createProduct = async (req, res, next) => {
             const uploads = await Promise.all(
                 req.files.map((file) => uploadBufferToCloudinary(file.buffer, "products"))
             );
-            // images = uploads.map((r) => ({ url: r.secure_url, public_id: r.public_id }));
+            images = uploads.map((r) => ({ url: r.secure_url, public_id: r.public_id }));
         }
 
         const product = await Product.create({
@@ -93,7 +93,6 @@ export const getProduct = async (req, res, next) => {
 
         const product = await Product.findOne(query)
             .populate("category", "name slug")
-            .populate("subCategory", "name slug");
 
         if (!product) {
             return res.status(404).json({ success: false, message: "Product not found" });
@@ -113,8 +112,8 @@ export const updateProduct = async (req, res, next) => {
         }
 
         const fields = [
-            "name", "description", "category", "subCategory",
-            "brand", "sku", "price", "discountPrice", "stock", "isActive", "isFeatured",
+            "name", "description", "category",
+            "brand", "price", "discountPrice", "stock", "isActive", "isFeatured",
         ];
         fields.forEach((field) => {
             if (req.body[field] !== undefined) product[field] = req.body[field];
@@ -195,12 +194,12 @@ export const updateStock = async (req, res, next) => {
 };
 
 // @desc  Low stock / out of stock products (admin inventory alerts)
-export const getInventoryAlerts = async (req, res, next) => {
-    try {
-        const lowStock = await Product.find({ stock: { $gt: 0, $lte: 5 } });
-        const outOfStock = await Product.find({ stock: 0 });
-        res.status(200).json({ success: true, lowStock, outOfStock });
-    } catch (error) {
-        next(error);
-    }
-};
+// export const getInventoryAlerts = async (req, res, next) => {
+//     try {
+//         const lowStock = await Product.find({ stock: { $gt: 0, $lte: 5 } });
+//         const outOfStock = await Product.find({ stock: 0 });
+//         res.status(200).json({ success: true, lowStock, outOfStock });
+//     } catch (error) {
+//         next(error);
+//     }
+// };

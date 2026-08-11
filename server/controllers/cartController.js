@@ -4,10 +4,15 @@ import Product from "../model/Product.js";
 // Add product to cart
 export const addToCart = async (req, res) => {
     try {
-        const { Product: productId, quantity = 1 } = req.body;
-        const userId = req.userDetails.userId;
+        // console.log("BODY:", req.body);
+        // console.log("USER:", req.user);
+        const { productId, quantity = 1 } = req.body;
+        const userId = req.user.id;
+        console.log("user", req.user.id);
+        
 
         const product = await Product.findById(productId);
+        console.log("Product ID received:", productId);
 
         if (!product) {
             return res.status(404).json({
@@ -56,7 +61,9 @@ export const addToCart = async (req, res) => {
 // Get user's cart
 export const getCart = async (req, res) => {
     try {
-        const userId = req.userDetails.userId;
+        // console.log("BODY:", req.body);
+        // console.log("USER:", req.user);
+        const userId = req.user.id;
 
         const cart = await Cart.find({ user: userId })
             .populate("Product");
@@ -80,7 +87,7 @@ export const updateCartQuantity = async (req, res) => {
     try {
         const { id } = req.params;
         const { quantity } = req.body;
-        const userId = req.userDetails.userId;
+        const userId = req.user.id;
 
         if (quantity < 1) {
             return res.status(400).json({
@@ -121,7 +128,7 @@ export const updateCartQuantity = async (req, res) => {
 export const removeFromCart = async (req, res) => {
     try {
         const { id } = req.params;
-        const userId = req.userDetails.userId;
+        const userId = req.user.id;
 
         const cartItem = await Cart.findOneAndDelete({
             _id: id,
@@ -150,7 +157,7 @@ export const removeFromCart = async (req, res) => {
 // Clear entire cart
 export const clearCart = async (req, res) => {
     try {
-        const userId = req.userDetails.userId;
+        const userId = req.user.id;
 
         await Cart.deleteMany({
             user: userId

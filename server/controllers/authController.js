@@ -9,7 +9,7 @@ export const Register = async (req, res, next) => {
     try {
         const { name, email, password,role } = req.body
 
-        if (!name || !email || !password || !role) {
+        if (!name || !email || !password) {
             return res.status(400).json({
                 message: "all field required"
             });

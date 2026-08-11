@@ -56,9 +56,12 @@ export const auth = async (req, res, next) => {
     try {
 
         const token = req.headers.authorization?.split(" ")[1];
+        // console.log("Headers:", req.headers);
+        // console.log("Authorization:", req.headers.authorization);
+
 
         if (!token) {
-            return res.staus(401).json({
+            return res.status(401).json({
                 message: 'Authentication required'
             });
         }
@@ -69,10 +72,11 @@ export const auth = async (req, res, next) => {
 
         req.user = decoded;
         next();
-        
+
     } catch (error) {
         console.log(error)
         res.status(404).json({
-            message: "NOt found"})
+            message: "NOt found"
+        })
     }
 }
