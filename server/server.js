@@ -19,6 +19,7 @@ connection()
 
 app.use(express.json())
 app.use('/api/auth', authRoutes );
+app.use('/api/admin', orderRoutes)
 app.use('/api/categories', categoryRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/cart', cartRoutes);

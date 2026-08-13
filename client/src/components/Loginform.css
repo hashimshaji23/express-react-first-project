@@ -1,0 +1,123 @@
+.login-page {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #f8fafc;
+    padding: 16px;
+}
+
+.login-card {
+    width: 100%;
+    max-width: 384px;
+    background-color: #ffffff;
+    border-radius: 16px;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    padding: 32px;
+}
+
+.login-title {
+    font-size: 24px;
+    font-weight: 600;
+    color: #0f172a;
+    margin: 0 0 4px;
+}
+
+.login-subtitle {
+    font-size: 14px;
+    color: #64748b;
+    margin: 0 0 24px;
+}
+
+.form-group {
+    margin-bottom: 16px;
+}
+
+.form-label {
+    display: block;
+    font-size: 14px;
+    font-weight: 500;
+    color: #334155;
+    margin-bottom: 4px;
+}
+
+.form-input {
+    width: 100%;
+    box-sizing: border-box;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 14px;
+    color: #0f172a;
+    outline: none;
+    transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.form-input::placeholder {
+    color: #94a3b8;
+}
+
+.form-input:focus {
+    border-color: transparent;
+    box-shadow: 0 0 0 2px #0f172a;
+}
+
+.password-field {
+    position: relative;
+}
+
+.password-input {
+    padding-right: 64px;
+}
+
+.toggle-password-btn {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    font-size: 12px;
+    font-weight: 500;
+    color: #64748b;
+    cursor: pointer;
+    padding: 4px;
+}
+
+.toggle-password-btn:hover {
+    color: #334155;
+}
+
+.form-error {
+    font-size: 14px;
+    color: #dc2626;
+    background-color: #fef2f2;
+    border: 1px solid #fecaca;
+    border-radius: 8px;
+    padding: 8px 12px;
+    margin: 12px 0 0;
+}
+
+.submit-btn {
+    width: 100%;
+    margin-top: 20px;
+    border: none;
+    border-radius: 8px;
+    background-color: #0f172a;
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 500;
+    padding: 10px;
+    cursor: pointer;
+    transition: background-color 0.15s, opacity 0.15s;
+}
+
+.submit-btn:hover:not(:disabled) {
+    background-color: #1e293b;
+}
+
+.submit-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}

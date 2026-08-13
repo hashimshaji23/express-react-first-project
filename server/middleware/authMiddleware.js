@@ -57,7 +57,7 @@ export const auth = async (req, res, next) => {
     try {
 
         const token = req.headers.authorization?.split(" ")[1];
-        console.log(token)
+        // console.log(token)
         // console.log("Headers:", req.headers);
         // console.log("Authorization:", req.headers.authorization);
 
