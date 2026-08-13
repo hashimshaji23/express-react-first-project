@@ -1,4 +1,5 @@
 import Product from "../model/Product.js";
+import Category from "../model/Category.js";
 import { slugify } from "../utils/slugify.js";
 import { uploadBufferToCloudinary, deleteFromCloudinary } from "../utils/cloudinaryUpload.js";
 
@@ -44,7 +45,30 @@ export const getProducts = async (req, res, next) => {
         const filter = { isActive: true };
 
         if (keyword) filter.$text = { $search: keyword };
-        if (category) filter.category = category;
+
+        // "category" arrives as a slug (e.g. "electronics"), but Product.category
+        // is an ObjectId ref to Category, so it must be resolved first.
+        if (category) {
+            const isObjectId = /^[0-9a-fA-F]{24}$/.test(category);
+            const categoryDoc = isObjectId
+                ? await Category.findById(category)
+                : await Category.findOne({ slug: category });
+
+            if (!categoryDoc) {
+                // No matching category -> return an empty result set instead of crashing
+                return res.status(200).json({
+                    success: true,
+                    count: 0,
+                    total: 0,
+                    totalPages: 0,
+                    currentPage: Number(page),
+                    products: [],
+                });
+            }
+
+            filter.category = categoryDoc._id;
+        }
+
         if (brand) filter.brand = brand;
         if (minRating) filter.ratingsAverage = { $gte: Number(minRating) };
         if (minPrice || maxPrice) {
