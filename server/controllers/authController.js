@@ -7,7 +7,7 @@ import jwt from "jsonwebtoken"
 
 export const Register = async (req, res, next) => {
     try {
-        const { name, email, password,role } = req.body
+        const { name, email, password, role } = req.body
 
         if (!name || !email || !password) {
             return res.status(400).json({
@@ -162,30 +162,24 @@ export const googleAuth = async (req, res) => {
 
 export const login = async (req, res, next) => {
     try {
-                console.log("1. LOGIN FUNCTION CALLED");
 
-        const { email, password,} = req.body;
+        const { email, password, } = req.body;
 
-        if (!email || !password ) {
-                        console.log("3. Missing email/password");
+        if (!email || !password) {
 
             return res.status(400).json({
                 success: false,
                 message: "Please provide email and password"
             });
         }
-        console.log("4. Searching user...");
 
         const user = await User.findOne({ email })
-        console.log("5. User:", user);
 
         if (!user) {
-            console.log("6. User not found");
             return res.status(404).json({
                 message: "user Not found"
             })
         }
-        console.log("7. Comparing password...");
 
         // if (!user.isEmailVerified) {
         //     return res.status(403).json({
@@ -198,34 +192,32 @@ export const login = async (req, res, next) => {
         console.log("8. Password match:", isPasswordMatch);
 
         if (!isPasswordMatch) {
-            console.log("9. Password incorrect");
             return res.status(404).json({
                 message: "password is not match"
             });
         }
-        console.log("10. Creating token...");
 
-        console.log("JWT_SECRET:", process.env.JWT_SECRET);
-        console.log("JWT_EXPIRE:", process.env.JWT_EXPIRE);
+        // console.log("JWT_SECRET:", process.env.JWT_SECRET);
+        // console.log("JWT_EXPIRE:", process.env.JWT_EXPIRE);
 
 
-            const token = jwt.sign(
-                    {
-                        id: user._id,
-                        role: user.role
-                    },
-                    process.env.JWT_SECRET,
-                    {
-                        expiresIn: process.env.JWT_EXPIRE
-                    }
-                );
+        const token = jwt.sign(
+            {
+                id: user._id,
+                role: user.role
+            },
+            process.env.JWT_SECRET,
+            {
+                expiresIn: process.env.JWT_EXPIRE
+            }
+        );
 
-                console.log("TOKEN:", token);
+        // console.log("TOKEN:", token);
         // const token = jwt.sign(
         //     { id: user._id, role: user.role },
         //     process.env.JWT_SECRET,
         //     { expiresIn: process.env.JWT_EXPIRE },
-            
+
         // )
         //     console.log("TOKEN:", token);
 
@@ -238,9 +230,7 @@ export const login = async (req, res, next) => {
                 email: user.email,
                 role: user.role,
             },
-                token: token
-
-
+            token: token
         })
 
     } catch (err) {

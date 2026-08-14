@@ -4,6 +4,7 @@ import Product from "../model/Product.js";
 // Add product to cart
 export const addToCart = async (req, res) => {
     try {
+        // console.log("enterd....")
         // console.log("BODY:", req.body);
         // console.log("USER:", req.user);
         const { productId, quantity = 1 } = req.body;

@@ -55,7 +55,7 @@ export default function LoginForm({ onLoginSuccess }) {
             if (data.user.role === "admin") {
                 navigate("/adminDash");
             } else {
-                navigate("/prodect");
+                navigate("/Product");
             }
 
         } catch (err) {
