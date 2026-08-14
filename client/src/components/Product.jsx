@@ -20,6 +20,11 @@ const Product = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
 
+    // Tracks which product ids are currently being added, and which were just added
+    const [addingIds, setAddingIds] = useState(new Set());
+    const [addedIds, setAddedIds] = useState(new Set());
+    const [cartMessage, setCartMessage] = useState(""); // small toast text
+
     const limit = 12;
 
     // Fetch products
@@ -82,6 +87,69 @@ const Product = () => {
         setPage(1);
     };
 
+    // Show a small toast message for a couple seconds
+    const flashMessage = (text) => {
+        setCartMessage(text);
+        setTimeout(() => setCartMessage(""), 2000);
+    };
+
+    // Add to cart — called when the 🛒 button is clicked
+    const handleAddToCart = async (productId) => {
+        // avoid double-clicks while a request for this product is in flight
+        if (addingIds.has(productId)) return;
+
+        setAddingIds((prev) => new Set(prev).add(productId));
+
+        try {
+            const token = localStorage.getItem("token");
+
+            if (!token) {
+                flashMessage("Please log in to add items to cart");
+                setAddingIds((prev) => {
+                    const next = new Set(prev);
+                    next.delete(productId);
+                    return next;
+                });
+                return;
+            }
+
+            const response = await API.post(
+                "/api/cart/",
+                { productId, quantity: 1 },
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            );
+
+            setAddedIds((prev) => new Set(prev).add(productId));
+            flashMessage(response.data?.message || "Added to cart");
+
+            // revert the "added" checkmark back to the cart icon after a bit
+            setTimeout(() => {
+                setAddedIds((prev) => {
+                    const next = new Set(prev);
+                    next.delete(productId);
+                    return next;
+                });
+            }, 1500);
+
+        } catch (error) {
+            console.log(error);
+            const message =
+                error.response?.data?.message ||
+                "Failed to add product to cart";
+            flashMessage(message);
+        } finally {
+            setAddingIds((prev) => {
+                const next = new Set(prev);
+                next.delete(productId);
+                return next;
+            });
+        }
+    };
+
     return (
         <div className="product-page">
 
@@ -96,6 +164,13 @@ const Product = () => {
                     {products.length} Products
                 </div>
             </div>
+
+            {/* Cart toast */}
+            {cartMessage && (
+                <div className="cart-toast">
+                    {cartMessage}
+                </div>
+            )}
 
             <div className="product-layout">
 
@@ -356,8 +431,22 @@ const Product = () => {
                                                 ₹{product.price}
                                             </span>
 
-                                            <button className="cart-btn">
-                                                🛒
+                                            <button
+                                                className={`cart-btn ${addedIds.has(product._id)
+                                                        ? "cart-btn--added"
+                                                        : ""
+                                                    }`}
+                                                disabled={addingIds.has(product._id)}
+                                                onClick={() =>
+                                                    handleAddToCart(product._id)
+                                                }
+                                                aria-label="Add to cart"
+                                            >
+                                                {addingIds.has(product._id)
+                                                    ? "…"
+                                                    : addedIds.has(product._id)
+                                                        ? "✅"
+                                                        : "🛒"}
                                             </button>
 
                                         </div>
@@ -422,7 +511,7 @@ const Product = () => {
 
             </div>
         </div>
-     );
+    );
 };
 
 export default Product;
