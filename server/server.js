@@ -23,7 +23,7 @@ app.use('/api/admin', orderRoutes)
 app.use('/api/categories', categoryRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/cart', cartRoutes);
-app.use('/api/order', orderRoutes)
+app.use('/api/orders', orderRoutes)
 
 
 app.listen(port, () => {

@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import API from "../api/axios.js"; 
 import "./AdminOrdersDashboard.css";
 
-// Adjust these to match your actual route names
 const ORDERS_URL = "/api/admin/getAllorders"; // GET all orders
 const ORDER_STATUS_URL = (id) => `/api/admin/update-Order-status/${id}`; // PUT update status
 

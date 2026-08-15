@@ -3,6 +3,7 @@ import Register from "./components/Register"
 import Product from "./components/Product"
 import AdminOrdersDashboard from "./components/AdminOrdersDashboard"
 import LoginForm from "./components/LoginForm"
+import Cart from "./components/Cart"
 
 
 function App() {
@@ -15,7 +16,8 @@ function App() {
           <Route path="/login" element={<LoginForm/>} />
           <Route path="/Product" element={<Product />} />
           <Route path="/adminDash" element={<AdminOrdersDashboard/>} />
-          {/* <Route path="/Addtocart" element={<AddToCart/>} /> */}
+          <Route path="/Tocart" element={<Cart/>} />
+          {/* <Route path="/checkout" element={<Checkout/>} /> */}
         </Routes>
       {/* </BrowserRouter> */}
     </>

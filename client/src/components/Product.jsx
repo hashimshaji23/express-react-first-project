@@ -1,10 +1,14 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import axios from "../api/axios.js";
 import "./Product.css";
 import API from "../api/axios";
 
 const Product = () => {
+    const navigate = useNavigate();
+
     const [products, setProducts] = useState([]);
+    const [cartCount, setCartCount] = useState(0);
 
     const [keyword, setKeyword] = useState("");
     const [category, setCategory] = useState("");
@@ -75,6 +79,28 @@ const Product = () => {
         page,
     ]);
 
+    // Fetch cart item count once, so the header badge is accurate on load
+    const getCartCount = async () => {
+        const token = localStorage.getItem("token");
+        if (!token) return; // not logged in, skip silently
+
+        try {
+            const response = await API.get("/api/cart", {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+
+            const items = response.data.cart || [];
+            setCartCount(items.length);
+
+        } catch (err) {
+            console.log(err);
+        }
+    };
+
+    useEffect(() => {
+        getCartCount();
+    }, []);
+
     // Reset filters
     const clearFilters = () => {
         setKeyword("");
@@ -114,7 +140,7 @@ const Product = () => {
             }
 
             const response = await API.post(
-                "/api/cart/",
+                "/api/cart",
                 { productId, quantity: 1 },
                 {
                     headers: {
@@ -124,7 +150,15 @@ const Product = () => {
             );
 
             setAddedIds((prev) => new Set(prev).add(productId));
-            flashMessage(response.data?.message || "Added to cart");
+            const serverMessage = response.data?.message || "Added to cart";
+            flashMessage(serverMessage);
+
+            // Only bump the badge when a NEW cart line was created —
+            // your controller returns "Product added to cart" for a new item
+            // vs "Cart quantity updated" when it already existed.
+            if (serverMessage === "Product added to cart") {
+                setCartCount((prev) => prev + 1);
+            }
 
             // revert the "added" checkmark back to the cart icon after a bit
             setTimeout(() => {
@@ -160,8 +194,23 @@ const Product = () => {
                     <p>Find the perfect products for you</p>
                 </div>
 
-                <div className="product-count">
-                    {products.length} Products
+                <div className="product-header__right">
+                    <div className="product-count">
+                        {products.length} Products
+                    </div>
+
+                    <button
+                        className="view-cart-btn"
+                        onClick={() => navigate("/Tocart")}
+                        aria-label="View cart"
+                    >
+                        🛒
+                        {cartCount > 0 && (
+                            <span className="view-cart-btn__badge">
+                                {cartCount}
+                            </span>
+                        )}
+                    </button>
                 </div>
             </div>
 
