@@ -18,7 +18,7 @@ const Cart = () => {
         headers: {
             Authorization: `Bearer ${getToken()}`,
         },
-    });
+    });  
 
     const flashMessage = (text) => {
         setMessage(text);
@@ -184,15 +184,24 @@ const Cart = () => {
                     <p>{cartItems.length} item{cartItems.length !== 1 ? "s" : ""}</p>
                 </div>
 
-                {cartItems.length > 0 && (
+                <div className="cart-header__actions">
                     <button
-                        className="cart-clear-btn"
-                        onClick={handleClearCart}
-                        disabled={clearing}
+                        className="cart-orders-btn"
+                        onClick={() => navigate("/Myorders")}
                     >
-                        {clearing ? "Clearing..." : "Clear Cart"}
+                        My Orders
                     </button>
-                )}
+
+                    {cartItems.length > 0 && (
+                        <button
+                            className="cart-clear-btn"
+                            onClick={handleClearCart}
+                            disabled={clearing}
+                        >
+                            {clearing ? "Clearing..." : "Clear Cart"}
+                        </button>
+                    )}
+                </div>
             </div>
 
             {message && <div className="cart-toast">{message}</div>}
@@ -229,7 +238,7 @@ const Cart = () => {
                                     <img
                                         src={
                                             product.image ||
-                                            product.images?.[0] ||
+                                            product.images?.[0]?.url ||
                                             "https://via.placeholder.com/120"
                                         }
                                         alt={product.name}
@@ -303,7 +312,10 @@ const Cart = () => {
                             <span>₹{total.toFixed(2)}</span>
                         </div>
 
-                        <button className="cart-checkout-btn">
+                        <button
+                            className="cart-checkout-btn"
+                            onClick={() => navigate("/checkout")}
+                        >
                             Proceed to Checkout
                         </button>
 

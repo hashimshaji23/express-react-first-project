@@ -1,0 +1,348 @@
+/* ==========================================================================
+   Checkout.css
+   ========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap');
+
+.checkout-page {
+    --paper: #f7f7f4;
+    --surface: #ffffff;
+    --ink: #16181b;
+    --muted: #6f6d67;
+    --line: #e7e4de;
+    --line-soft: #f0eee9;
+
+    --accent: #1f5d50;
+    --accent-ink: #ffffff;
+    --accent-soft: #e3efe9;
+
+    --error: #b3352c;
+    --error-soft: #fbeceb;
+
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
+    box-sizing: border-box;
+    margin: 0 auto;
+    padding: 36px clamp(16px, 4vw, 48px) 80px;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+.checkout-page *,
+.checkout-page *::before,
+.checkout-page *::after {
+    box-sizing: border-box;
+}
+
+.checkout-page :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+}
+
+/* ==========================================================================
+   Header
+   ========================================================================== */
+
+.checkout-header {
+    padding-bottom: 20px;
+    margin-bottom: 24px;
+    border-bottom: 1px solid var(--line);
+}
+
+.checkout-header h1 {
+    margin: 0 0 4px;
+    font-family: 'Fraunces', Georgia, serif;
+    font-weight: 600;
+    font-size: clamp(24px, 3vw, 30px);
+}
+
+.checkout-header p {
+    margin: 0;
+    color: var(--muted);
+    font-size: 14px;
+}
+
+/* ==========================================================================
+   Alert
+   ========================================================================== */
+
+.checkout-alert {
+    background: var(--error-soft);
+    color: var(--error);
+    border: 1px solid rgba(179, 53, 44, 0.25);
+    padding: 10px 14px;
+    border-radius: 6px;
+    font-size: 13px;
+    margin-bottom: 20px;
+}
+
+/* ==========================================================================
+   Loading / empty
+   ========================================================================== */
+
+.checkout-loading {
+    text-align: center;
+    padding: 100px 0;
+    color: var(--muted);
+}
+
+.checkout-spinner {
+    width: 30px;
+    height: 30px;
+    margin: 0 auto 14px;
+    border: 3px solid var(--line);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: checkout-spin 0.7s linear infinite;
+}
+
+@keyframes checkout-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.checkout-empty {
+    text-align: center;
+    padding: 90px 20px;
+    color: var(--muted);
+}
+
+.checkout-empty__icon {
+    font-size: 44px;
+    margin-bottom: 10px;
+}
+
+.checkout-empty h2 {
+    margin: 0 0 6px;
+    font-family: 'Fraunces', Georgia, serif;
+    color: var(--ink);
+    font-size: 20px;
+}
+
+.checkout-secondary-btn {
+    margin-top: 16px;
+    padding: 10px 22px;
+    background: var(--surface);
+    color: var(--accent);
+    border: 1px solid var(--accent);
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.checkout-secondary-btn:hover {
+    background: var(--accent-soft);
+}
+
+/* ==========================================================================
+   Layout
+   ========================================================================== */
+
+.checkout-layout {
+    display: grid;
+    grid-template-columns: 1fr 360px;
+    gap: 28px;
+    align-items: start;
+    min-width: 0;
+}
+
+/* ==========================================================================
+   Form
+   ========================================================================== */
+
+.checkout-form {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 24px;
+    min-width: 0;
+}
+
+.checkout-form h2 {
+    margin: 0 0 18px;
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.checkout-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 16px;
+    min-width: 0;
+}
+
+.checkout-field label {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    color: var(--muted);
+}
+
+.checkout-field input {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    font-size: 14px;
+    color: var(--ink);
+    background: var(--surface);
+    transition: border-color 0.15s ease;
+}
+
+.checkout-field input:focus {
+    border-color: var(--accent);
+    outline: none;
+}
+
+.checkout-input--error {
+    border-color: var(--error) !important;
+}
+
+.checkout-field-error {
+    font-size: 11.5px;
+    color: var(--error);
+}
+
+.checkout-field-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+}
+
+/* ==========================================================================
+   Summary
+   ========================================================================== */
+
+.checkout-summary {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 22px;
+    position: sticky;
+    top: 20px;
+    min-width: 0;
+}
+
+.checkout-summary h2 {
+    margin: 0 0 16px;
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.checkout-summary__items {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 16px;
+    max-height: 260px;
+    overflow-y: auto;
+}
+
+.checkout-summary__item {
+    display: grid;
+    grid-template-columns: 44px 1fr auto;
+    align-items: center;
+    gap: 10px;
+}
+
+.checkout-summary__item img {
+    width: 44px;
+    height: 44px;
+    border-radius: 6px;
+    object-fit: cover;
+    background: var(--line-soft);
+}
+
+.checkout-summary__item-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+    font-size: 13px;
+}
+
+.checkout-summary__item-info span:first-child {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.checkout-summary__item-qty {
+    font-size: 11.5px;
+    color: var(--muted);
+}
+
+.checkout-summary__item-price {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12.5px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.checkout-summary__row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13.5px;
+    color: var(--muted);
+    padding: 8px 0;
+    border-top: 1px dashed var(--line);
+}
+
+.checkout-summary__row--total {
+    font-weight: 700;
+    color: var(--ink);
+    font-size: 16px;
+    border-top: 1px solid var(--line);
+    margin-top: 4px;
+}
+
+.checkout-place-btn {
+    width: 100%;
+    margin-top: 16px;
+    padding: 13px;
+    background: var(--accent);
+    color: var(--accent-ink);
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.15s ease;
+}
+
+.checkout-place-btn:hover:not(:disabled) {
+    opacity: 0.9;
+}
+
+.checkout-place-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* ==========================================================================
+   Responsive
+   ========================================================================== */
+
+@media (max-width: 900px) {
+    .checkout-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .checkout-summary {
+        position: static;
+    }
+}
+
+@media (max-width: 480px) {
+    .checkout-field-row {
+        grid-template-columns: 1fr;
+    }
+}

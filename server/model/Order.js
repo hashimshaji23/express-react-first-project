@@ -1,18 +1,21 @@
 import mongoose from "mongoose";
 
-export const orderShema = new mongoose.Schema({
+export const orderSchema = new mongoose.Schema({
     user: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "user",
         required: true,
     },
 
-    products: [
+    // Renamed from "products" to "prducts" to match createOrder,
+    // getMyOrders, getMyAllOrders, and the frontend (Checkout.jsx /
+    // MyOrders.jsx) — all of which already use this spelling.
+    prducts: [
         {
             product: {
                 type: mongoose.Schema.Types.ObjectId,
-                ref: "product",
-                require: true,
+                ref: "Product",
+                required: true,
             },
             quantity: {
                 type: Number,
@@ -31,10 +34,15 @@ export const orderShema = new mongoose.Schema({
         required: true,
     },
 
+    // Matches the fields collected in Checkout.jsx's address form.
     shippingAddress: {
-        street: { type: String, required: true },
+        fullName: { type: String, required: true },
+        phone: { type: String, required: true },
+        addressLine1: { type: String, required: true },
+        addressLine2: { type: String },
         city: { type: String, required: true },
-        postCode: { type: String, required: true },
+        state: { type: String, required: true },
+        postalCode: { type: String, required: true },
         country: { type: String, required: true },
     },
 
@@ -48,6 +56,6 @@ export const orderShema = new mongoose.Schema({
         type: Boolean,
         default: false,
     },
-}, { timestamps: true, })
+}, { timestamps: true });
 
-export default mongoose.model("order", orderShema)
+export default mongoose.model("order", orderSchema);

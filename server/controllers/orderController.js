@@ -9,7 +9,7 @@ export const createOrder = async (req, res) => {
         }
 
         const order = new Order({
-            user: req.user._id,
+            user: req.user.id,
             prducts,
             totalAmount,
             shippingAddress,
@@ -19,20 +19,25 @@ export const createOrder = async (req, res) => {
         res.status(201).json(saveOrder);
 
     } catch (error) {
+        console.log(error);
         res.status(500).json({ message: "Server error", error: error.message });
     }
 };
 
-export const getAllOrders = async (req, res) => {
+// Admin/general: all orders belonging to the logged-in user, populated.
+export const getMyAllOrders = async (req, res) => {
     try {
-        const order = await Order.find().populate("user", "name email");
-        res.status(200).json(order);
+        const orders = await Order.find({ user: req.user.id })
+            .populate("prducts.product")
+            .sort({ createdAt: -1 });
+
+        res.status(200).json({ orders });
 
     } catch (error) {
+        console.log(error);
         res.status(500).json({ message: "Server error", error: error.message });
     }
 };
-
 
 export const getOrderById = async (req, res) => {
     try {
@@ -42,7 +47,7 @@ export const getOrderById = async (req, res) => {
         );
 
         if (!order) {
-            return res.status(404).json({ messagel: "Order not found" });
+            return res.status(404).json({ message: "Order not found" });
         }
 
         res.status(200).json(order);
@@ -51,20 +56,27 @@ export const getOrderById = async (req, res) => {
     }
 };
 
-
+// FIXED: was using req.user._id (undefined, since JWT payload only has `id`)
+// and was returning { order } instead of { orders } — the frontend reads
+// response.data.orders, so the mismatched key alone caused an empty list
+// even when the id filter worked.
 export const getMyOrders = async (req, res) => {
+    console.log("getMyOrders hit, user:", req.user); // temporary debug line
     try {
-        const order = await Order.find({ user: req.user._id });
-        res.status(200).json({ order });
+        const orders = await Order.find({ user: req.user.id })
+            .populate("prducts.product")
+            .sort({ createdAt: -1 });
+
+        res.status(200).json({ orders });
     } catch (error) {
+        console.log("getMyOrders ERROR:", error);
         res.status(500).json({ message: "Server error", error: error.message });
     }
 };
 
-
 export const updateOrderStatus = async (req, res) => {
     try {
-        const { status } = req.body
+        const { status } = req.body;
 
         const order = await Order.findById(req.params.id);
 
@@ -80,7 +92,6 @@ export const updateOrderStatus = async (req, res) => {
         res.status(500).json({ message: "Server error", error: error.message });
     }
 };
-
 
 export const deleteOrder = async (req, res) => {
     try {

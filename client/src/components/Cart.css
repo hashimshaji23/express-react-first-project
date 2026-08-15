@@ -25,6 +25,29 @@
     font-size: 14px;
 }
 
+.cart-header__actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+}
+
+.cart-orders-btn {
+    padding: 9px 16px;
+    background: #fff;
+    color: #ff6f00;
+    border: 1px solid #ff6f00;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.cart-orders-btn:hover {
+    background: #fff4e5;
+}
+
 .cart-clear-btn {
     padding: 9px 16px;
     background: #fff;
