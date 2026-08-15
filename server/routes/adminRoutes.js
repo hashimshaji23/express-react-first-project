@@ -10,7 +10,7 @@
 // export default router;
 
 import express from "express";
-import { getAllOrders, updateOrderStatus } from "../controllers/adminController.js";
+import { getAllOrders, updateOrderStatus } from "../controllers/adminOrderController.js";
 import { auth } from "../middleware/authMiddleware.js";
 import { adminMiddleware } from "../middleware/adminMiddleware.js";
 

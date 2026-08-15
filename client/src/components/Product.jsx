@@ -433,7 +433,7 @@ const Product = () => {
                                         <img
                                             src={
                                                 product.image ||
-                                                product.images?.[0] ||
+                                                product.images?.[0]?.url ||
                                                 "https://via.placeholder.com/400"
                                             }
                                             alt={product.name}
