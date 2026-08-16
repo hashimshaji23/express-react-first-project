@@ -43,6 +43,7 @@ const userSchema = new mongoose.Schema({
     avatar: { url: String, public_id: String },
 
     addresses: [addressSchema],
+    }, { timestamps: true })
 
     // isEmailVerified: { type: Boolean, default: false },
 
@@ -62,7 +63,7 @@ const userSchema = new mongoose.Schema({
     //     type: Boolean,
     //     default: false
     // }
-}, { timestamps: true })
+// }, { timestamps: true })
 
 // userSchema.pre("save", async function (next) {
 //     if (!this.isModified("password")) return next();
@@ -74,6 +75,6 @@ const userSchema = new mongoose.Schema({
 //     return await bcrypt.compare(candidatePassword, this.password);
 // };
 
-const User = mongoose.model('userData', userSchema)
+const User = mongoose.model('User', userSchema)
 
 export default User

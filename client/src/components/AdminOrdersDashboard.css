@@ -1,43 +1,94 @@
+/* ==========================================================================
+   AdminOrdersDashboard.css
+   Console-style order table: dense rows, sticky header, color-coded
+   status badges that double as the select's visual state.
+   ========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap');
+
 .orders-dashboard {
-    padding: 24px;
-    max-width: 1100px;
+    --paper: #f7f7f4;
+    --surface: #ffffff;
+    --ink: #16181b;
+    --muted: #6f6d67;
+    --line: #e7e4de;
+    --line-soft: #f0eee9;
+
+    --accent: #1f5d50;
+    --accent-soft: #e3efe9;
+
+    --status-pending-bg: #fdf3e3;
+    --status-pending-fg: #9a6a12;
+    --status-processing-bg: #e7edfb;
+    --status-processing-fg: #3350b0;
+    --status-shipped-bg: #eae6fb;
+    --status-shipped-fg: #6339c9;
+    --status-delivered-bg: #e3efe9;
+    --status-delivered-fg: #1f5d50;
+    --status-cancelled-bg: #fbeceb;
+    --status-cancelled-fg: #b3352c;
+
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
+    box-sizing: border-box;
     margin: 0 auto;
-    font-family: inherit;
+    padding: 36px clamp(16px, 4vw, 48px) 64px;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
+
+.orders-dashboard *,
+.orders-dashboard *::before,
+.orders-dashboard *::after {
+    box-sizing: border-box;
+}
+
+/* ==========================================================================
+   Header
+   ========================================================================== */
 
 .orders-header {
     display: flex;
-    align-items: flex-start;
+    align-items: flex-end;
     justify-content: space-between;
-    margin-bottom: 20px;
+    gap: 16px;
+    padding-bottom: 24px;
+    margin-bottom: 24px;
+    border-bottom: 1px solid var(--line);
 }
 
 .orders-title {
-    font-size: 22px;
+    margin: 0 0 4px;
+    font-family: 'Fraunces', Georgia, serif;
     font-weight: 600;
-    color: #0f172a;
-    margin: 0;
+    font-size: clamp(24px, 3vw, 32px);
+    letter-spacing: -0.01em;
 }
 
 .orders-subtitle {
+    margin: 0;
+    color: var(--muted);
     font-size: 14px;
-    color: #64748b;
-    margin: 4px 0 0;
 }
 
 .refresh-btn {
-    border: 1px solid #cbd5e1;
-    background-color: #ffffff;
-    color: #334155;
-    font-size: 14px;
-    font-weight: 500;
-    padding: 8px 16px;
+    padding: 10px 18px;
+    background: var(--surface);
+    border: 1px solid var(--line);
     border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--ink);
     cursor: pointer;
+    transition: border-color 0.15s ease, background 0.15s ease;
+    white-space: nowrap;
 }
 
 .refresh-btn:hover:not(:disabled) {
-    background-color: #f1f5f9;
+    border-color: var(--accent);
+    background: var(--accent-soft);
 }
 
 .refresh-btn:disabled {
@@ -45,114 +96,168 @@
     cursor: not-allowed;
 }
 
+/* ==========================================================================
+   Alert / empty
+   ========================================================================== */
+
 .orders-alert {
-    background-color: #fef2f2;
-    border: 1px solid #fecaca;
-    color: #b91c1c;
-    border-radius: 6px;
+    background: var(--status-cancelled-bg);
+    color: var(--status-cancelled-fg);
+    border: 1px solid rgba(179, 53, 44, 0.25);
     padding: 10px 14px;
-    font-size: 14px;
-    margin-bottom: 16px;
+    border-radius: 6px;
+    font-size: 13px;
+    margin-bottom: 18px;
 }
 
 .orders-empty {
     text-align: center;
-    color: #64748b;
+    padding: 90px 20px;
+    color: var(--muted);
     font-size: 14px;
-    padding: 48px 0;
-    background-color: #f8fafc;
-    border-radius: 8px;
-    border: 1px solid #e2e8f0;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 10px;
 }
 
+/* ==========================================================================
+   Table
+   ========================================================================== */
+
 .orders-table-wrap {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 10px;
     overflow-x: auto;
-    border: 1px solid #e2e8f0;
-    border-radius: 8px;
-    background-color: #ffffff;
+    overflow-y: hidden;
+    box-shadow: 0 1px 2px rgba(22, 24, 27, 0.04), 0 8px 20px -12px rgba(22, 24, 27, 0.08);
 }
 
 .orders-table {
     width: 100%;
+    min-width: 720px;
     border-collapse: collapse;
-    font-size: 14px;
+    font-size: 13.5px;
 }
 
-.orders-table th {
+.orders-table thead th {
+    position: sticky;
+    top: 0;
+    background: var(--surface);
     text-align: left;
+    font-size: 11px;
     font-weight: 600;
-    color: #475569;
-    background-color: #f8fafc;
-    padding: 12px 16px;
-    border-bottom: 1px solid #e2e8f0;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--muted);
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--line);
     white-space: nowrap;
 }
 
-.orders-table td {
-    padding: 12px 16px;
-    border-bottom: 1px solid #f1f5f9;
-    color: #0f172a;
-    vertical-align: middle;
-    white-space: nowrap;
+.orders-table tbody tr {
+    border-bottom: 1px solid var(--line-soft);
+    transition: background 0.12s ease;
 }
 
-.orders-table tr:last-child td {
+.orders-table tbody tr:last-child {
     border-bottom: none;
 }
 
-.order-id-cell {
-    font-family: monospace;
-    color: #64748b;
+.orders-table tbody tr:hover {
+    background: var(--paper);
 }
+
+.orders-table td {
+    padding: 14px 16px;
+    vertical-align: middle;
+    color: var(--ink);
+}
+
+.order-id-cell {
+    font-family: 'IBM Plex Mono', 'SFMono-Regular', Consolas, monospace;
+    font-weight: 600;
+    font-size: 12.5px;
+    color: var(--muted);
+    letter-spacing: 0.02em;
+}
+
+/* ==========================================================================
+   Status badge + select
+   ========================================================================== */
 
 .status-cell {
     display: flex;
     align-items: center;
     gap: 10px;
+    flex-wrap: wrap;
 }
 
 .status-badge {
-    display: inline-block;
-    padding: 3px 10px;
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 10px;
     border-radius: 999px;
-    font-size: 12px;
-    font-weight: 500;
+    font-size: 11.5px;
+    font-weight: 600;
     text-transform: capitalize;
     white-space: nowrap;
 }
 
 .status-pending {
-    background-color: #fef9c3;
-    color: #854d0e;
+    background: var(--status-pending-bg);
+    color: var(--status-pending-fg);
 }
 
 .status-processing {
-    background-color: #dbeafe;
-    color: #1e40af;
+    background: var(--status-processing-bg);
+    color: var(--status-processing-fg);
 }
 
 .status-shipped {
-    background-color: #e0e7ff;
-    color: #3730a3;
+    background: var(--status-shipped-bg);
+    color: var(--status-shipped-fg);
 }
 
 .status-delivered {
-    background-color: #dcfce7;
-    color: #166534;
+    background: var(--status-delivered-bg);
+    color: var(--status-delivered-fg);
 }
 
 .status-cancelled {
-    background-color: #fee2e2;
-    color: #991b1b;
+    background: var(--status-cancelled-bg);
+    color: var(--status-cancelled-fg);
+}
+
+.confirm-order-btn {
+    padding: 5px 12px;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 999px;
+    font-size: 11.5px;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.confirm-order-btn:hover:not(:disabled) {
+    opacity: 0.9;
+}
+
+.confirm-order-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
 }
 
 .status-select {
-    border: 1px solid #cbd5e1;
+    padding: 6px 26px 6px 10px;
+    border: 1px solid var(--line);
     border-radius: 6px;
-    padding: 4px 8px;
-    font-size: 13px;
-    color: #334155;
-    background-color: #ffffff;
+    background: var(--surface) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236F6D67' stroke-width='1.5' fill='none' fill-rule='evenodd'/%3E%3C/svg%3E") no-repeat right 8px center;
+    appearance: none;
+    font-size: 12.5px;
+    color: var(--ink);
     cursor: pointer;
     text-transform: capitalize;
 }
@@ -160,4 +265,25 @@
 .status-select:disabled {
     opacity: 0.5;
     cursor: not-allowed;
+}
+
+.status-select:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 1px;
+}
+
+/* ==========================================================================
+   Responsive
+   ========================================================================== */
+
+@media (max-width: 640px) {
+    .orders-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+
+    .refresh-btn {
+        width: 100%;
+    }
 }

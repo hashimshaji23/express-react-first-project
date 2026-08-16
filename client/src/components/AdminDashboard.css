@@ -1,0 +1,86 @@
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap');
+
+.admin-dashboard {
+    --paper: #f7f7f4;
+    --surface: #ffffff;
+    --ink: #16181b;
+    --muted: #6f6d67;
+    --line: #e7e4de;
+    --accent: #1f5d50;
+
+    width: 100%;
+    max-width: 100%;
+    min-height: 100vh;
+    background: var(--paper);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+.admin-dashboard__topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    flex-wrap: wrap;
+    padding: 24px clamp(16px, 4vw, 48px) 0;
+    background: var(--paper);
+}
+
+.admin-dashboard__topbar h1 {
+    margin: 0;
+    font-family: 'Fraunces', Georgia, serif;
+    font-weight: 700;
+    font-size: 22px;
+    color: var(--ink);
+}
+
+.admin-dashboard__tabs {
+    display: flex;
+    gap: 4px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 4px;
+}
+
+.admin-dashboard__tab {
+    padding: 8px 20px;
+    border: none;
+    background: transparent;
+    border-radius: 999px;
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--muted);
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease;
+    white-space: nowrap;
+}
+
+.admin-dashboard__tab:hover {
+    color: var(--ink);
+}
+
+.admin-dashboard__tab--active {
+    background: var(--accent);
+    color: #fff;
+}
+
+.admin-dashboard__content {
+    width: 100%;
+}
+
+@media (max-width: 480px) {
+    .admin-dashboard__topbar {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+
+    .admin-dashboard__tabs {
+        width: 100%;
+    }
+
+    .admin-dashboard__tab {
+        flex: 1;
+        text-align: center;
+    }
+}

@@ -1,0 +1,450 @@
+/* ==========================================================================
+   ProductManagement.css
+   ========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap');
+
+.pm-page {
+    --paper: #f7f7f4;
+    --surface: #ffffff;
+    --ink: #16181b;
+    --muted: #6f6d67;
+    --line: #e7e4de;
+    --line-soft: #f0eee9;
+
+    --accent: #1f5d50;
+    --accent-soft: #e3efe9;
+
+    --error: #b3352c;
+    --error-soft: #fbeceb;
+
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
+    box-sizing: border-box;
+    margin: 0 auto;
+    padding: 36px clamp(16px, 4vw, 48px) 80px;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+.pm-page *,
+.pm-page *::before,
+.pm-page *::after {
+    box-sizing: border-box;
+}
+
+.pm-page :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+}
+
+/* ==========================================================================
+   Header
+   ========================================================================== */
+
+.pm-header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 16px;
+    padding-bottom: 24px;
+    margin-bottom: 24px;
+    border-bottom: 1px solid var(--line);
+    flex-wrap: wrap;
+}
+
+.pm-header h1 {
+    margin: 0 0 4px;
+    font-family: 'Fraunces', Georgia, serif;
+    font-weight: 600;
+    font-size: clamp(24px, 3vw, 30px);
+}
+
+.pm-header p {
+    margin: 0;
+    color: var(--muted);
+    font-size: 14px;
+}
+
+/* ==========================================================================
+   Buttons
+   ========================================================================== */
+
+.pm-btn {
+    padding: 10px 18px;
+    border: 1px solid var(--line);
+    background: var(--surface);
+    color: var(--ink);
+    border-radius: 6px;
+    font-size: 13.5px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: border-color 0.15s ease, background 0.15s ease, opacity 0.15s ease;
+    white-space: nowrap;
+}
+
+.pm-btn:hover:not(:disabled) {
+    border-color: var(--accent);
+}
+
+.pm-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.pm-btn--primary {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+}
+
+.pm-btn--primary:hover:not(:disabled) {
+    opacity: 0.9;
+}
+
+/* ==========================================================================
+   Alert / empty
+   ========================================================================== */
+
+.pm-alert {
+    background: var(--error-soft);
+    color: var(--error);
+    border: 1px solid rgba(179, 53, 44, 0.25);
+    padding: 10px 14px;
+    border-radius: 6px;
+    font-size: 13px;
+    margin-bottom: 18px;
+}
+
+.pm-empty {
+    text-align: center;
+    padding: 80px 20px;
+    color: var(--muted);
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+}
+
+.pm-empty p {
+    margin: 0 0 14px;
+}
+
+/* ==========================================================================
+   Table
+   ========================================================================== */
+
+.pm-table-wrap {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    overflow-x: auto;
+    box-shadow: 0 1px 2px rgba(22, 24, 27, 0.04), 0 8px 20px -12px rgba(22, 24, 27, 0.08);
+}
+
+.pm-table {
+    width: 100%;
+    min-width: 680px;
+    border-collapse: collapse;
+    font-size: 13.5px;
+}
+
+.pm-table thead th {
+    text-align: left;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--muted);
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--line);
+    white-space: nowrap;
+}
+
+.pm-table tbody tr {
+    border-bottom: 1px solid var(--line-soft);
+}
+
+.pm-table tbody tr:last-child {
+    border-bottom: none;
+}
+
+.pm-table tbody tr:hover {
+    background: var(--paper);
+}
+
+.pm-table td {
+    padding: 12px 16px;
+    vertical-align: middle;
+}
+
+.pm-product-cell {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 200px;
+}
+
+.pm-product-cell img {
+    width: 40px;
+    height: 40px;
+    border-radius: 6px;
+    object-fit: cover;
+    background: var(--line-soft);
+    flex-shrink: 0;
+}
+
+.pm-mono {
+    font-family: 'IBM Plex Mono', monospace;
+    font-weight: 600;
+}
+
+.pm-stock-cell {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.pm-stock-input {
+    width: 64px;
+    padding: 6px 8px;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    font-size: 13px;
+    font-family: 'IBM Plex Mono', monospace;
+}
+
+.pm-stock-save {
+    padding: 5px 10px;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    font-size: 11.5px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.pm-stock-save:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.pm-status {
+    display: inline-flex;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 11.5px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.pm-status--active {
+    background: var(--accent-soft);
+    color: var(--accent);
+}
+
+.pm-status--inactive {
+    background: var(--line-soft);
+    color: var(--muted);
+}
+
+.pm-actions-cell {
+    display: flex;
+    gap: 6px;
+    white-space: nowrap;
+}
+
+.pm-icon-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    border: 1px solid var(--line);
+    background: var(--surface);
+    cursor: pointer;
+    font-size: 13px;
+}
+
+.pm-icon-btn:hover:not(:disabled) {
+    border-color: var(--accent);
+    background: var(--accent-soft);
+}
+
+.pm-icon-btn--danger:hover:not(:disabled) {
+    border-color: var(--error);
+    background: var(--error-soft);
+}
+
+.pm-icon-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* ==========================================================================
+   Form
+   ========================================================================== */
+
+.pm-form {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 24px;
+}
+
+.pm-form-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 18px;
+}
+
+.pm-form-header h2 {
+    margin: 0;
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: 19px;
+    font-weight: 600;
+}
+
+.pm-form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+.pm-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 0;
+}
+
+.pm-field--full {
+    grid-column: 1 / -1;
+}
+
+.pm-field label {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    color: var(--muted);
+}
+
+.pm-field input[type="text"],
+.pm-field input[type="number"],
+.pm-field textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    font-size: 14px;
+    font-family: inherit;
+    color: var(--ink);
+    background: var(--surface);
+}
+
+.pm-field input:focus,
+.pm-field textarea:focus {
+    border-color: var(--accent);
+    outline: none;
+}
+
+.pm-field textarea {
+    resize: vertical;
+}
+
+.pm-field--checkboxes {
+    flex-direction: row;
+    align-items: center;
+    gap: 20px;
+    grid-column: 1 / -1;
+}
+
+.pm-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13.5px;
+    color: var(--ink);
+    text-transform: none;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+.pm-checkbox input {
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+}
+
+/* ==========================================================================
+   Image grids (existing images + staged uploads)
+   ========================================================================== */
+
+.pm-image-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 8px;
+}
+
+.pm-image-tile {
+    position: relative;
+    width: 72px;
+    height: 72px;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid var(--line);
+}
+
+.pm-image-tile img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.pm-image-remove {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(22, 24, 27, 0.75);
+    color: #fff;
+    font-size: 13px;
+    line-height: 1;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.pm-image-remove:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.pm-form-submit {
+    margin-top: 22px;
+    width: 100%;
+}
+
+/* ==========================================================================
+   Responsive
+   ========================================================================== */
+
+@media (max-width: 640px) {
+    .pm-form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .pm-field--checkboxes {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+}

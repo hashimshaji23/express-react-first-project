@@ -53,7 +53,7 @@ export default function LoginForm({ onLoginSuccess }) {
             }
 
             if (data.user.role === "admin") {
-                navigate("/adminDash");
+                navigate("/admin-main-dash");
             } else {
                 navigate("/Product");
             }

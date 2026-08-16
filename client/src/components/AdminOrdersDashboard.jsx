@@ -4,7 +4,7 @@ import "./AdminOrdersDashboard.css";
 
 // Adjust these to match your actual route names
 const ORDERS_URL = "/api/admin/getAllorders"; // GET all orders
-const ORDER_STATUS_URL = (id) => `/api/admin/update-Order-status/${id}`; // PUT update status
+const ORDER_STATUS_URL = (id) => `/api/orders/${id}/status`; // PUT update status — matches orderRoutes.js
 
 const STATUS_OPTIONS = ["pending", "processing", "shipped", "delivered", "cancelled"];
 
@@ -17,6 +17,10 @@ export default function AdminOrdersDashboard() {
     // Which user groups are expanded — all expanded by default once loaded
     const [expandedUsers, setExpandedUsers] = useState(new Set());
 
+    const authHeaders = () => ({
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+    });
+
     useEffect(() => {
         fetchOrders();
     }, []);
@@ -25,7 +29,7 @@ export default function AdminOrdersDashboard() {
         setLoading(true);
         setError("");
         try {
-            const res = await API.get(ORDERS_URL);
+            const res = await API.get(ORDERS_URL, authHeaders());
             const fetched = res.data.Orders || [];
             setOrders(fetched);
 
@@ -51,7 +55,7 @@ export default function AdminOrdersDashboard() {
         );
 
         try {
-            await API.put(ORDER_STATUS_URL(orderId), { status: newStatus });
+            await API.put(ORDER_STATUS_URL(orderId), { status: newStatus }, authHeaders());
         } catch (err) {
             // Roll back on failure
             setOrders(prevOrders);
@@ -203,6 +207,19 @@ export default function AdminOrdersDashboard() {
                                                                 <span className={`status-badge status-${order.status}`}>
                                                                     {order.status}
                                                                 </span>
+
+                                                                {order.status === "pending" && (
+                                                                    <button
+                                                                        className="confirm-order-btn"
+                                                                        disabled={updatingId === order._id}
+                                                                        onClick={() =>
+                                                                            handleStatusChange(order._id, "processing")
+                                                                        }
+                                                                    >
+                                                                        {updatingId === order._id ? "…" : "Confirm"}
+                                                                    </button>
+                                                                )}
+
                                                                 <select
                                                                     className="status-select"
                                                                     value={order.status}

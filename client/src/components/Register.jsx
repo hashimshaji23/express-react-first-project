@@ -116,7 +116,7 @@ export default function RegisterForm() {
               </div>
             </div>
 
-            <div className="form-group">
+            {/* <div className="form-group">
               <label htmlFor="role" className="form-label">
                 Role
               </label>
@@ -130,7 +130,7 @@ export default function RegisterForm() {
                 <option value="customer">Customer</option>
                 <option value="admin">Admin</option>
               </select>
-            </div>
+            </div> */}
 
             <button type="submit" disabled={loading} className="submit-btn">
               {loading ? "Creating account..." : "Create account"}
