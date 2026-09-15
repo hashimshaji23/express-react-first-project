@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const API = axios.create({
-    baseURL: "https://e-commerc.onrender.com", // replace with your actual Render URL
+    baseURL: "https://e-commerc-irrt.onrender.com",
 });
 
 export default API;
