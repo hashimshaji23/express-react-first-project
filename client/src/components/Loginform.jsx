@@ -1,7 +1,7 @@
 import { useState } from "react";
 import API from "../api/axios.js";
 import { useNavigate } from "react-router-dom";
-import "./LoginForm.css";
+import "./Loginform.css";
 
 // Point this at wherever your login route is mounted, e.g. "/api/auth/login"
 // const LOGIN_ENDPOINT = "/api/auth/login";
