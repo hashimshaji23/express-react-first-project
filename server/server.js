@@ -15,7 +15,8 @@ const app = express()
 dotenv.config()
 app.use(cors())
 
-const port = process.env.PORT
+const PORT = process.env.PORT || 4000;
+
 connection()
 
 app.use(express.json())
@@ -27,6 +28,6 @@ app.use('/api/cart', cartRoutes);
 app.use('/api/orders', orderRoutes)
 
 
-app.listen(port, () => {
-    console.log(` server is running on port ${port}`)
+app.listen(PORT, () => {
+    console.log(` server is running on port ${PORT}`)
 });
