@@ -7,7 +7,7 @@ import jwt from "jsonwebtoken"
 
 export const Register = async (req, res, next) => {
     try {
-        const { name, email, password, role } = req.body
+        const { name, email, password } = req.body
 
         if (!name || !email || !password) {
             return res.status(400).json({
@@ -32,7 +32,6 @@ export const Register = async (req, res, next) => {
         const newUser = new User({
             name,
             email,
-            role,
             password: hash,
             // emailOtp: otp,
             // emailOtpExpire: Date.now() + 5 * 60 * 1000,

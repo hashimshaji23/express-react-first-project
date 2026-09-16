@@ -1,4 +1,4 @@
-import { Route, Routes } from "react-router-dom"
+import { Route, Routes } from "react-router-dom";
 import Register from "./components/Register"
 import Product from "./components/Product"
 import AdminOrderDashboard from "./components/AdminOrdersDashboard"
@@ -8,12 +8,12 @@ import Checkout from "./components/Checkout"
 import MyOrders from "./components/Orders"
 import OrderSuccess from "./components/OrderSuccess"
 import ProductManagement from "./components/ProductManagement"
-import AdminDashboard from "./components/AdminDashboard"
+import AdminDashboard from "./components/AdminDashboard";
 
 
 function App() {
 
-  return (
+  return ( 
     <>
       {/* <BrowserRouter> */}
         <Routes>
