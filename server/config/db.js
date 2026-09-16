@@ -5,7 +5,7 @@ const connection = () => {
 
     if (!mongoUrl) {
         console.error("MONGO_URL is not set");
-        process.exit(1);
+        return;
     }
 
     mongoose
@@ -15,7 +15,6 @@ const connection = () => {
         })
         .catch((err) => {
             console.error("mongodb connection failed", err);
-            process.exit(1);
         });
 };
 

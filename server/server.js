@@ -12,22 +12,20 @@ import adminRoutes from "./routes/adminRoutes.js";
 const app = express();
 const PORT = process.env.PORT || 4000;
 
-const allowedOrigins = [
-    process.env.CLIENT_URL,
-    "http://localhost:5173",
-    "http://localhost:4173",
-].filter(Boolean);
+const corsOptions = {
+    origin: [
+        "https://ecommerc-three.vercel.app",
+        "http://localhost:5173",
+        "http://localhost:4173",
+        process.env.CLIENT_URL,
+    ].filter(Boolean),
+    methods: ["GET", "HEAD", "PUT", "PATCH", "POST", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+    optionsSuccessStatus: 204,
+};
 
-app.use(
-    cors({
-        origin(origin, callback) {
-            if (!origin) return callback(null, true);
-            if (allowedOrigins.includes(origin)) return callback(null, true);
-            if (origin.endsWith(".vercel.app")) return callback(null, true);
-            return callback(new Error("Not allowed by CORS"));
-        },
-    })
-);
+app.use(cors(corsOptions));
+app.options(/.*/, cors(corsOptions));
 
 connection();
 
@@ -49,6 +47,11 @@ app.use("/api/cart", cartRoutes);
 app.use("/api/orders", orderRoutes);
 
 app.use((err, req, res, next) => {
+    const origin = req.headers.origin;
+    if (origin) {
+        res.header("Access-Control-Allow-Origin", origin);
+        res.header("Vary", "Origin");
+    }
     console.error(err);
     res.status(err.status || 500).json({
         success: false,
