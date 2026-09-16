@@ -1,11 +1,22 @@
 import mongoose from "mongoose";
 
-
 const connection = () => {
-    mongoose.connect(process.env.MONGO_URL).then(() => {
-        console.log(` mongodb connected `);
-    })
-}
+    const mongoUrl = process.env.MONGO_URL;
 
-export default connection
+    if (!mongoUrl) {
+        console.error("MONGO_URL is not set");
+        process.exit(1);
+    }
 
+    mongoose
+        .connect(mongoUrl)
+        .then(() => {
+            console.log("mongodb connected");
+        })
+        .catch((err) => {
+            console.error("mongodb connection failed", err);
+            process.exit(1);
+        });
+};
+
+export default connection;

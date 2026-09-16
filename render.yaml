@@ -1,0 +1,8 @@
+services:
+  - type: web
+    name: e-com-api
+    runtime: node
+    rootDir: server
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /health

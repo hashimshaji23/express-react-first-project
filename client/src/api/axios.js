@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const API = axios.create({
-    baseURL: "https://e-commerc-irrt.onrender.com",
+    baseURL: import.meta.env.VITE_API_URL || "https://e-commerc-irrt.onrender.com",
 });
 
 export default API;

@@ -13,12 +13,15 @@ const router = express.Router();
 router.get("/", getProducts);
 router.get("/:idOrSlug", getProduct);
 
-// Admin only
-router.post("/",auth ,adminMiddleware,upload.array("image"), createProduct);
-router.put("/:id",auth,adminMiddleware ,upload.array("image"), updateProduct);
-router.delete("/:id",auth,deleteProduct);
-router.delete("/:id/image/:publicId",auth ,deleteProductImage);
-router.patch("/:id/stock",auth ,updateStock);
-// router.get("/admin/inventory-alerts", getInventoryAlerts);
+const adminOnly = [auth, adminMiddleware];
+
+// Admin only — more specific paths before /:id
+router.post("/", ...adminOnly, upload.array("image"), createProduct);
+router.put("/:id/stock", ...adminOnly, updateStock);
+router.patch("/:id/stock", ...adminOnly, updateStock);
+router.delete("/:id/images/*publicId", ...adminOnly, deleteProductImage);
+router.delete("/:id/image/*publicId", ...adminOnly, deleteProductImage);
+router.put("/:id", ...adminOnly, upload.array("image"), updateProduct);
+router.delete("/:id", ...adminOnly, deleteProduct);
 
 export default router;

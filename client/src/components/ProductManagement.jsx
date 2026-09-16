@@ -8,8 +8,8 @@ const PRODUCT_CREATE_URL = "/api/products";// POST
 const PRODUCT_UPDATE_URL = (id) => `/api/products/${id}`;// PUT  
 const PRODUCT_DELETE_URL = (id) => `/api/products/${id}`;// DELETE
 const PRODUCT_DELETE_IMAGE_URL = (id, publicId) =>
-    `/api/products/${id}/images/${encodeURIComponent(publicId)}`;// DELETE
-const PRODUCT_UPDATE_STOCK_URL = (id) => `/api/products/${id}/stock`;// PUT
+    `/api/products/${id}/images/${encodeURIComponent(publicId)}`; // DELETE
+const PRODUCT_UPDATE_STOCK_URL = (id) => `/api/products/${id}/stock`; // PUT
 
 const emptyForm = {
     name: "",
