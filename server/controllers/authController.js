@@ -7,7 +7,8 @@ import jwt from "jsonwebtoken"
 
 export const Register = async (req, res, next) => {
     try {
-        const { name, email, password } = req.body
+        const { name, password } = req.body
+        const email = req.body.email?.trim().toLowerCase()
 
         if (!name || !email || !password) {
             return res.status(400).json({
@@ -65,6 +66,24 @@ export const Register = async (req, res, next) => {
     }
 }
 
+const createAuthToken = (user) => {
+    const secret = process.env.JWT_SECRET;
+    if (!secret) {
+        throw new Error("JWT_SECRET is not set");
+    }
+
+    const expiresIn =
+        process.env.JWT_EXPIRE && String(process.env.JWT_EXPIRE).trim()
+            ? String(process.env.JWT_EXPIRE).trim()
+            : "7d";
+
+    return jwt.sign(
+        { id: user._id, role: user.role },
+        secret,
+        { expiresIn }
+    );
+};
+
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 export const googleAuth = async (req, res) => {
@@ -100,18 +119,7 @@ export const googleAuth = async (req, res) => {
             });
         }
 
-        const token = jwt.sign(
-            {
-                id: user._id,
-                role: user.role,
-            },
-
-            process.env.JWT_SECRET,
-
-            {
-                expiresIn: "7d",
-            }
-        );
+        const token = createAuthToken(user);
 
         res.status(200).json({
             status: true,
@@ -161,66 +169,37 @@ export const googleAuth = async (req, res) => {
 
 export const login = async (req, res, next) => {
     try {
-
-        const { email, password, } = req.body;
+        const email = req.body.email?.trim().toLowerCase();
+        const password = req.body.password;
 
         if (!email || !password) {
-
             return res.status(400).json({
                 success: false,
                 message: "Please provide email and password"
             });
         }
 
-        const user = await User.findOne({ email })
+        const user = await User.findOne({ email });
 
-        if (!user) {
-            return res.status(404).json({
-                message: "user Not found"
-            })
-        }
-
-        // if (!user.isEmailVerified) {
-        //     return res.status(403).json({
-        //         success: false,
-        //         message: "Please verify your email first"
-        //     });
-        // }
-
-        const isPasswordMatch = await bcrypt.compare(password, user.password)
-        console.log("8. Password match:", isPasswordMatch);
-
-        if (!isPasswordMatch) {
-            return res.status(404).json({
-                message: "password is not match"
+        if (!user || !user.password) {
+            return res.status(401).json({
+                success: false,
+                message: "Invalid email or password"
             });
         }
 
-        // console.log("JWT_SECRET:", process.env.JWT_SECRET);
-        // console.log("JWT_EXPIRE:", process.env.JWT_EXPIRE);
+        const isPasswordMatch = await bcrypt.compare(password, user.password);
 
+        if (!isPasswordMatch) {
+            return res.status(401).json({
+                success: false,
+                message: "Invalid email or password"
+            });
+        }
 
-        const token = jwt.sign(
-            {
-                id: user._id,
-                role: user.role
-            },
-            process.env.JWT_SECRET,
-            {
-                expiresIn: process.env.JWT_EXPIRE
-            }
-        );
+        const token = createAuthToken(user);
 
-        // console.log("TOKEN:", token);
-        // const token = jwt.sign(
-        //     { id: user._id, role: user.role },
-        //     process.env.JWT_SECRET,
-        //     { expiresIn: process.env.JWT_EXPIRE },
-
-        // )
-        //     console.log("TOKEN:", token);
-
-        res.status(201).json({
+        res.status(200).json({
             message: "login successfully",
             success: true,
             user: {
@@ -229,14 +208,15 @@ export const login = async (req, res, next) => {
                 email: user.email,
                 role: user.role,
             },
-            token: token
-        })
-
+            token,
+        });
     } catch (err) {
         console.log(err, "from login fun");
         res.status(500).json({
             success: false,
-            message: "something went wrong"
+            message: err.message === "JWT_SECRET is not set"
+                ? "Server auth is not configured. Set JWT_SECRET on Render."
+                : "something went wrong"
         });
     }
 };

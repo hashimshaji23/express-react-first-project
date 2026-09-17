@@ -9,16 +9,11 @@ import "./Loginform.css";
 export default function LoginForm({ onLoginSuccess }) {
     const navigate = useNavigate();
 
-    console.log("start");
-
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [showPassword, setShowPassword] = useState(false);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
-    console.log("email", email);
-    console.log("password", password)
-    console.log("showapss", showPassword)
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -40,11 +35,16 @@ export default function LoginForm({ onLoginSuccess }) {
 
         try {
             const res = await API.post("/api/auth/login", {
-                email,
+                email: email.trim().toLowerCase(),
                 password
             });
 
             const data = res.data;
+
+            if (!data?.token || !data?.user) {
+                setError("Login succeeded but the server did not return a token");
+                return;
+            }
 
             localStorage.setItem("token", data.token);
 
