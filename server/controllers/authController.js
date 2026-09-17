@@ -1,12 +1,17 @@
-// import transporter from "../utils/sendEmail.js";
+import mongoose from "mongoose";
 import User from "../model/user.js";
 import bcrypt from "bcrypt";
 import { OAuth2Client } from "google-auth-library";
-import jwt from "jsonwebtoken"
-// import { sendTokenResponse } from "../utils/generateToken.js";
+import jwt from "jsonwebtoken";
 
 export const Register = async (req, res, next) => {
     try {
+        if (mongoose.connection.readyState !== 1) {
+            return res.status(500).json({
+                success: false,
+                message: "Database is not connected. Please check MongoDB Atlas Network Access (Allow 0.0.0.0/0) and MONGO_URL in Render."
+            });
+        }
         const { name, password } = req.body
         const email = req.body.email?.trim().toLowerCase()
 
@@ -166,6 +171,13 @@ export const googleAuth = async (req, res) => {
 
 export const login = async (req, res, next) => {
     try {
+        if (mongoose.connection.readyState !== 1) {
+            return res.status(500).json({
+                success: false,
+                message: "Database is not connected. Please check MongoDB Atlas Network Access (Allow 0.0.0.0/0) and MONGO_URL in Render."
+            });
+        }
+
         const email = req.body.email?.trim().toLowerCase();
         const password = req.body.password;
 
