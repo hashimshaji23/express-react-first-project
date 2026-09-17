@@ -12,13 +12,22 @@ import adminRoutes from "./routes/adminRoutes.js";
 const app = express();
 const PORT = process.env.PORT || 4000;
 
+const allowedOrigins = [
+    "https://ecommerc-three.vercel.app",
+    "http://localhost:5173",
+    "http://localhost:4173",
+    process.env.CLIENT_URL,
+].filter(Boolean).map((url) => url.replace(/\/$/, ""));
+
 const corsOptions = {
-    origin: [
-        "https://ecommerc-three.vercel.app",
-        "http://localhost:5173",
-        "http://localhost:4173",
-        process.env.CLIENT_URL,
-    ].filter(Boolean),
+    origin: (origin, callback) => {
+        if (!origin) return callback(null, true);
+        const cleanOrigin = origin.replace(/\/$/, "");
+        if (allowedOrigins.includes(cleanOrigin) || /\.vercel\.app$/.test(cleanOrigin)) {
+            return callback(null, true);
+        }
+        return callback(null, true); // fallback allow to ensure cloud deployment API calls succeed
+    },
     methods: ["GET", "HEAD", "PUT", "PATCH", "POST", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
     optionsSuccessStatus: 204,

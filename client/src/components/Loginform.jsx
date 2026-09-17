@@ -47,6 +47,8 @@ export default function LoginForm({ onLoginSuccess }) {
             }
 
             localStorage.setItem("token", data.token);
+            localStorage.setItem("user", JSON.stringify(data.user));
+            localStorage.setItem("role", data.user.role || "customer");
 
             if (onLoginSuccess) {
                 onLoginSuccess(data.user, data.token);

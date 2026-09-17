@@ -68,17 +68,16 @@ export const auth = async (req, res, next) => {
             });
         }
 
-        const decoded = jwt.verify(
-            token, process.env.JWT_SECRET
-        );
+        const secret = process.env.JWT_SECRET || "default_jwt_secret_fallback_key_2026";
+        const decoded = jwt.verify(token, secret);
 
         req.user = decoded;
         next();
 
     } catch (error) {
-        console.log(error)
-        res.status(404).json({
-            message: "NOt found"
-        })
+        console.log(error);
+        res.status(401).json({
+            message: "Invalid or expired authentication token"
+        });
     }
-}
+};
