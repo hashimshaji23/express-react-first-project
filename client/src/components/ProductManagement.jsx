@@ -2,19 +2,20 @@ import React, { useEffect, useState } from "react";
 import API from "../api/axios";
 import "./ProductManagement.css";
 
-
-const PRODUCTS_LIST_URL = "/api/products";// GET   
-const PRODUCT_CREATE_URL = "/api/products";// POST 
-const PRODUCT_UPDATE_URL = (id) => `/api/products/${id}`;// PUT  
-const PRODUCT_DELETE_URL = (id) => `/api/products/${id}`;// DELETE
+const PRODUCTS_LIST_URL = "/api/products"; // GET
+const PRODUCT_CREATE_URL = "/api/products"; // POST
+const PRODUCT_UPDATE_URL = (id) => `/api/products/${id}`; // PUT
+const PRODUCT_DELETE_URL = (id) => `/api/products/${id}`; // DELETE
 const PRODUCT_DELETE_IMAGE_URL = (id, publicId) =>
     `/api/products/${id}/images/${encodeURIComponent(publicId)}`; // DELETE
 const PRODUCT_UPDATE_STOCK_URL = (id) => `/api/products/${id}/stock`; // PUT
+const CATEGORIES_LIST_URL = "/api/categories"; // GET
 
 const emptyForm = {
     name: "",
     description: "",
-    category: "", // Category ObjectId — plain text input until a categories endpoint exists
+    category: "",
+    customCategory: "",
     brand: "",
     price: "",
     discountPrice: "",
@@ -25,13 +26,14 @@ const emptyForm = {
 
 const ProductManagement = () => {
     const [products, setProducts] = useState([]);
+    const [categories, setCategories] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
 
     // "list" or "form"
     const [view, setView] = useState("list");
     const [editingId, setEditingId] = useState(null); // null = creating new
-    const [editingProduct, setEditingProduct] = useState(null); // full product being edited, for image list
+    const [editingProduct, setEditingProduct] = useState(null); // full product being edited
 
     const [form, setForm] = useState(emptyForm);
     const [newImageFiles, setNewImageFiles] = useState([]);
@@ -51,14 +53,17 @@ const ProductManagement = () => {
         },
     });
 
-    // ---------- Load products ----------
+    // ---------- Load products & categories ----------
 
     const fetchProducts = async () => {
         try {
             setLoading(true);
             setError("");
 
-            const response = await API.get(PRODUCTS_LIST_URL, authHeaders());
+            const response = await API.get(PRODUCTS_LIST_URL, {
+                params: { admin: "true", limit: 100 },
+                ...authHeaders(),
+            });
             setProducts(response.data.products || response.data || []);
 
         } catch (err) {
@@ -69,8 +74,18 @@ const ProductManagement = () => {
         }
     };
 
+    const fetchCategories = async () => {
+        try {
+            const res = await API.get(CATEGORIES_LIST_URL);
+            setCategories(res.data.categories || []);
+        } catch (err) {
+            console.log("Could not load categories list", err);
+        }
+    };
+
     useEffect(() => {
         fetchProducts();
+        fetchCategories();
     }, []);
 
     // ---------- Form open/close ----------
@@ -91,6 +106,7 @@ const ProductManagement = () => {
             name: product.name || "",
             description: product.description || "",
             category: product.category?._id || product.category || "",
+            customCategory: "",
             brand: product.brand || "",
             price: product.price ?? "",
             discountPrice: product.discountPrice ?? "",
@@ -129,21 +145,79 @@ const ProductManagement = () => {
 
     // ---------- Create / Update submit ----------
 
-    const buildFormData = () => {
+    const isObjectId = (value) => /^[0-9a-fA-F]{24}$/.test(String(value || ""));
+
+    const findCategoryByName = (list, name) => {
+        const needle = String(name || "").trim().toLowerCase();
+        if (!needle) return null;
+        return list.find((cat) => {
+            const catName = (cat.name || "").trim().toLowerCase();
+            const catSlug = (cat.slug || "").trim().toLowerCase();
+            return catName === needle || catSlug === needle;
+        }) || null;
+    };
+
+    const resolveCategoryId = async () => {
+        const selected = form.category === "custom"
+            ? form.customCategory.trim()
+            : String(form.category || "").trim();
+
+        if (isObjectId(selected)) return selected;
+
+        const name = selected || "General";
+        const existing = findCategoryByName(categories, name);
+        if (existing?._id) return existing._id;
+
+        try {
+            const categoryFd = new FormData();
+            categoryFd.append("name", name);
+            const res = await API.post(CATEGORIES_LIST_URL, categoryFd, authHeaders());
+            const created = res.data.category;
+            if (created?._id) {
+                setCategories((prev) => {
+                    if (prev.some((c) => c._id === created._id)) return prev;
+                    return [...prev, created].sort((a, b) =>
+                        String(a.name || "").localeCompare(String(b.name || ""))
+                    );
+                });
+                return created._id;
+            }
+        } catch (err) {
+            const alreadyExists = err.response?.status === 400
+                || /already exists/i.test(err.response?.data?.message || "");
+            if (!alreadyExists) throw err;
+        }
+
+        const listRes = await API.get(CATEGORIES_LIST_URL);
+        const latest = listRes.data.categories || [];
+        setCategories(latest);
+        const found = findCategoryByName(latest, name);
+        if (found?._id) return found._id;
+
+        throw new Error("Could not resolve product category");
+    };
+
+    const buildFormData = (categoryId) => {
         const fd = new FormData();
         fd.append("name", form.name);
         fd.append("description", form.description);
-        fd.append("category", form.category);
+        fd.append("category", categoryId);
+
         fd.append("brand", form.brand);
         fd.append("price", form.price);
-        if (form.discountPrice !== "") fd.append("discountPrice", form.discountPrice);
+
+        if (form.discountPrice !== "" && form.discountPrice !== null) {
+            fd.append("discountPrice", form.discountPrice);
+        }
+
         fd.append("stock", form.stock);
         fd.append("isActive", form.isActive);
         fd.append("isFeatured", form.isFeatured);
 
-        // Field name assumed to be "images" to match multer.array("images") —
-        // adjust if your multer middleware uses a different field name.
-        newImageFiles.forEach((file) => fd.append("images", file));
+        // Append image files
+        newImageFiles.forEach((file) => {
+            fd.append("image", file);
+        });
 
         return fd;
     };
@@ -152,7 +226,7 @@ const ProductManagement = () => {
         e.preventDefault();
 
         if (!form.name.trim() || !form.price) {
-            setFormError("Name and price are required");
+            setFormError("Product name and price are required.");
             return;
         }
 
@@ -160,28 +234,30 @@ const ProductManagement = () => {
         setFormError("");
 
         try {
-            const fd = buildFormData();
+            const categoryId = await resolveCategoryId();
+            const fd = buildFormData(categoryId);
 
             if (editingId) {
                 await API.put(
                     PRODUCT_UPDATE_URL(editingId),
                     fd,
-                    authHeaders({ "Content-Type": "multipart/form-data" })
+                    authHeaders()
                 );
             } else {
                 await API.post(
                     PRODUCT_CREATE_URL,
                     fd,
-                    authHeaders({ "Content-Type": "multipart/form-data" })
+                    authHeaders()
                 );
             }
 
             await fetchProducts();
+            await fetchCategories();
             closeForm();
 
         } catch (err) {
             console.log(err);
-            setFormError(err.response?.data?.message || "Failed to save product");
+            setFormError(err.response?.data?.message || err.message || "Failed to save product");
         } finally {
             setSaving(false);
         }
@@ -277,7 +353,7 @@ const ProductManagement = () => {
             <div className="pm-header">
                 <div>
                     <h1>Products</h1>
-                    <p>{loading ? "Loading..." : `${products.length} products`}</p>
+                    <p>{loading ? "Loading..." : `${products.length} products total`}</p>
                 </div>
 
                 {view === "list" && (
@@ -294,7 +370,7 @@ const ProductManagement = () => {
                     <div className="pm-empty">Loading products...</div>
                 ) : products.length === 0 ? (
                     <div className="pm-empty">
-                        <p>No products yet.</p>
+                        <p>No products available yet.</p>
                         <button className="pm-btn pm-btn--primary" onClick={openCreateForm}>
                             Add your first product
                         </button>
@@ -306,10 +382,11 @@ const ProductManagement = () => {
                                 <tr>
                                     <th>Product</th>
                                     <th>Brand</th>
+                                    <th>Category</th>
                                     <th>Price</th>
                                     <th>Stock</th>
                                     <th>Status</th>
-                                    <th></th>
+                                    <th>Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -318,6 +395,7 @@ const ProductManagement = () => {
                                         <td className="pm-product-cell">
                                             <img
                                                 src={
+                                                    product.image ||
                                                     product.images?.[0]?.url ||
                                                     "https://via.placeholder.com/44"
                                                 }
@@ -326,8 +404,9 @@ const ProductManagement = () => {
                                             <span>{product.name}</span>
                                         </td>
                                         <td>{product.brand || "—"}</td>
+                                        <td>{product.category?.name || "General"}</td>
                                         <td className="pm-mono">
-                                            ${Number(product.price).toFixed(2)}
+                                            ₹{Number(product.price).toFixed(2)}
                                         </td>
                                         <td>
                                             <div className="pm-stock-cell">
@@ -369,6 +448,7 @@ const ProductManagement = () => {
                                                 className="pm-icon-btn"
                                                 onClick={() => openEditForm(product)}
                                                 aria-label="Edit product"
+                                                title="Edit Product"
                                             >
                                                 ✏️
                                             </button>
@@ -377,6 +457,7 @@ const ProductManagement = () => {
                                                 disabled={deletingProductId === product._id}
                                                 onClick={() => handleDeleteProduct(product._id)}
                                                 aria-label="Delete product"
+                                                title="Delete Product"
                                             >
                                                 {deletingProductId === product._id ? "…" : "🗑️"}
                                             </button>
@@ -393,7 +474,7 @@ const ProductManagement = () => {
                 <form className="pm-form" onSubmit={handleSubmit}>
 
                     <div className="pm-form-header">
-                        <h2>{editingId ? "Edit Product" : "New Product"}</h2>
+                        <h2>{editingId ? "Edit Product" : "Create New Product"}</h2>
                         <button type="button" className="pm-btn" onClick={closeForm}>
                             Cancel
                         </button>
@@ -404,38 +485,58 @@ const ProductManagement = () => {
                     <div className="pm-form-grid">
 
                         <div className="pm-field pm-field--full">
-                            <label>Name</label>
+                            <label>Product Name *</label>
                             <input
                                 type="text"
                                 name="name"
                                 value={form.name}
                                 onChange={handleFieldChange}
+                                placeholder="e.g. Wireless Headphones"
                                 required
                             />
                         </div>
 
                         <div className="pm-field pm-field--full">
-                            <label>Description</label>
+                            <label>Description *</label>
                             <textarea
                                 name="description"
                                 rows={4}
                                 value={form.description}
                                 onChange={handleFieldChange}
+                                placeholder="Enter detailed product description..."
                                 required
                             />
                         </div>
 
                         <div className="pm-field">
-                            <label>Category ID</label>
-                            <input
-                                type="text"
+                            <label>Category</label>
+                            <select
                                 name="category"
                                 value={form.category}
                                 onChange={handleFieldChange}
-                                placeholder="Category ObjectId"
-                                required
-                            />
+                            >
+                                <option value="">Select Category (Default: General)</option>
+                                {categories.map((cat) => (
+                                    <option key={cat._id} value={cat._id}>
+                                        {cat.name}
+                                    </option>
+                                ))}
+                                <option value="custom">+ Create New Category Name</option>
+                            </select>
                         </div>
+
+                        {form.category === "custom" && (
+                            <div className="pm-field">
+                                <label>New Category Name</label>
+                                <input
+                                    type="text"
+                                    name="customCategory"
+                                    value={form.customCategory}
+                                    onChange={handleFieldChange}
+                                    placeholder="e.g. Electronics, Footwear"
+                                />
+                            </div>
+                        )}
 
                         <div className="pm-field">
                             <label>Brand</label>
@@ -444,11 +545,12 @@ const ProductManagement = () => {
                                 name="brand"
                                 value={form.brand}
                                 onChange={handleFieldChange}
+                                placeholder="e.g. Sony, Nike"
                             />
                         </div>
 
                         <div className="pm-field">
-                            <label>Price</label>
+                            <label>Price (₹) *</label>
                             <input
                                 type="number"
                                 step="0.01"
@@ -456,12 +558,13 @@ const ProductManagement = () => {
                                 name="price"
                                 value={form.price}
                                 onChange={handleFieldChange}
+                                placeholder="999.00"
                                 required
                             />
                         </div>
 
                         <div className="pm-field">
-                            <label>Discount Price</label>
+                            <label>Discount Price (₹)</label>
                             <input
                                 type="number"
                                 step="0.01"
@@ -469,17 +572,19 @@ const ProductManagement = () => {
                                 name="discountPrice"
                                 value={form.discountPrice}
                                 onChange={handleFieldChange}
+                                placeholder="Optional discounted price"
                             />
                         </div>
 
                         <div className="pm-field">
-                            <label>Stock</label>
+                            <label>Initial Stock *</label>
                             <input
                                 type="number"
                                 min="0"
                                 name="stock"
                                 value={form.stock}
                                 onChange={handleFieldChange}
+                                placeholder="10"
                                 required
                             />
                         </div>
@@ -502,7 +607,7 @@ const ProductManagement = () => {
                                     checked={form.isFeatured}
                                     onChange={handleFieldChange}
                                 />
-                                Featured
+                                Featured Product
                             </label>
                         </div>
 
@@ -530,7 +635,7 @@ const ProductManagement = () => {
                         )}
 
                         <div className="pm-field pm-field--full">
-                            <label>{editingId ? "Add More Images" : "Images"}</label>
+                            <label>{editingId ? "Add More Images" : "Product Images"}</label>
                             <input
                                 type="file"
                                 accept="image/*"
@@ -565,7 +670,7 @@ const ProductManagement = () => {
                         disabled={saving}
                     >
                         {saving
-                            ? "Saving..."
+                            ? "Saving Product..."
                             : editingId
                                 ? "Save Changes"
                                 : "Create Product"}

@@ -3,29 +3,88 @@ import Category from "../model/Category.js";
 import { slugify } from "../utils/slugify.js";
 import { uploadBufferToCloudinary, deleteFromCloudinary } from "../utils/cloudinaryUpload.js";
 
+const OBJECT_ID_RE = /^[0-9a-fA-F]{24}$/;
+
+const escapeRegex = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+const resolveCategoryId = async (category) => {
+    const raw = Array.isArray(category) ? category[0] : category;
+    const value = raw == null ? "" : String(raw).trim();
+
+    if (OBJECT_ID_RE.test(value)) {
+        const byId = await Category.findById(value);
+        if (byId) return byId._id;
+    }
+
+    const catName = !value || value === "custom" ? "General" : value;
+    const catSlug = slugify(catName);
+
+    let catDoc = await Category.findOne({
+        $or: [
+            { slug: catSlug },
+            { name: new RegExp(`^${escapeRegex(catName)}$`, "i") },
+        ],
+    });
+
+    if (!catDoc) {
+        try {
+            catDoc = await Category.create({ name: catName, slug: catSlug });
+        } catch (err) {
+            catDoc = await Category.findOne({ slug: catSlug });
+            if (!catDoc) throw err;
+        }
+    }
+
+    return catDoc._id;
+};
+
 // @desc  Create product (admin)
 export const createProduct = async (req, res, next) => {
     try {
         const {
             name, description, category,
             brand, price, discountPrice, stock,
+            isActive, isFeatured,
         } = req.body;
 
+        if (!name || !price) {
+            return res.status(400).json({ success: false, message: "Name and price are required" });
+        }
+
         const slug = slugify(name);
+        const categoryId = await resolveCategoryId(category);
 
         // Upload all images (req.files from multer.array)
         let images = [];
         if (req.files && req.files.length > 0) {
-            const uploads = await Promise.all(
-                req.files.map((file) => uploadBufferToCloudinary(file.buffer, "products"))
-            );
-            images = uploads.map((r) => ({ url: r.secure_url, public_id: r.public_id }));
+            try {
+                const uploads = await Promise.all(
+                    req.files.map((file) => uploadBufferToCloudinary(file.buffer, "products"))
+                );
+                images = uploads.map((r) => ({ url: r.secure_url, public_id: r.public_id }));
+            } catch (imgError) {
+                console.error("Image upload to Cloudinary failed:", imgError.message || imgError);
+            }
         }
 
-        const product = await Product.create({
-            name, slug, description, category,
-            brand, price, discountPrice, stock, images,
-        });
+        const productData = {
+            name,
+            slug,
+            description: description || "No description provided",
+            category: categoryId,
+            brand: brand || "",
+            price: Number(price),
+            stock: stock !== undefined && stock !== "" ? Number(stock) : 0,
+            images,
+            isActive: isActive !== undefined ? String(isActive) === "true" || isActive === true : true,
+            isFeatured: isFeatured !== undefined ? String(isFeatured) === "true" || isFeatured === true : false,
+        };
+
+        if (discountPrice !== undefined && discountPrice !== "" && discountPrice !== null) {
+            productData.discountPrice = Number(discountPrice);
+        }
+
+        const product = await Product.create(productData);
 
         res.status(201).json({ success: true, product });
     } catch (error) {
@@ -33,21 +92,20 @@ export const createProduct = async (req, res, next) => {
     }
 };
 
-// @desc  Get all products (public) - with search, filter, sort, pagination
+// @desc  Get all products (public & admin) - with search, filter, sort, pagination
 export const getProducts = async (req, res, next) => {
     try {
         const {
             keyword, category, brand,
             minPrice, maxPrice, minRating,
-            sort, page = 1, limit = 12,
+            sort, page = 1, limit = 12, admin,
         } = req.query;
 
-        const filter = { isActive: true };
+        // If admin parameter is passed as "true", show both active and inactive products
+        const filter = admin === "true" ? {} : { isActive: true };
 
         if (keyword) filter.$text = { $search: keyword };
 
-        // "category" arrives as a slug (e.g. "electronics"), but Product.category
-        // is an ObjectId ref to Category, so it must be resolved first.
         if (category) {
             const isObjectId = /^[0-9a-fA-F]{24}$/.test(category);
             const categoryDoc = isObjectId
@@ -55,7 +113,6 @@ export const getProducts = async (req, res, next) => {
                 : await Category.findOne({ slug: category });
 
             if (!categoryDoc) {
-                // No matching category -> return an empty result set instead of crashing
                 return res.status(200).json({
                     success: true,
                     count: 0,
@@ -136,12 +193,16 @@ export const updateProduct = async (req, res, next) => {
         }
 
         const fields = [
-            "name", "description", "category",
+            "name", "description",
             "brand", "price", "discountPrice", "stock", "isActive", "isFeatured",
         ];
         fields.forEach((field) => {
             if (req.body[field] !== undefined) product[field] = req.body[field];
         });
+
+        if (req.body.category !== undefined) {
+            product.category = await resolveCategoryId(req.body.category);
+        }
 
         if (req.body.name) product.slug = slugify(req.body.name);
 
