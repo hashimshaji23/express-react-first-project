@@ -92,7 +92,7 @@ export const createProduct = async (req, res, next) => {
     }
 };
 
-// @desc  Get all products (public & admin) - with search, filter, sort, pagination
+
 export const getProducts = async (req, res, next) => {
     try {
         const {
@@ -164,7 +164,7 @@ export const getProducts = async (req, res, next) => {
     }
 };
 
-// @desc  Get single product by slug or id
+
 export const getProduct = async (req, res, next) => {
     try {
         const { idOrSlug } = req.params;
@@ -184,7 +184,7 @@ export const getProduct = async (req, res, next) => {
     }
 };
 
-// @desc  Update product (admin)
+
 export const updateProduct = async (req, res, next) => {
     try {
         const product = await Product.findById(req.params.id);
@@ -222,7 +222,7 @@ export const updateProduct = async (req, res, next) => {
     }
 };
 
-// @desc  Remove a single image from a product (admin)
+
 const decodePublicId = (value) => {
     const raw = Array.isArray(value) ? value.join("/") : value;
     if (!raw) return "";
@@ -252,7 +252,7 @@ export const deleteProductImage = async (req, res, next) => {
     }
 };
 
-// @desc  Delete product (admin)
+
 export const deleteProduct = async (req, res, next) => {
     try {
         const product = await Product.findById(req.params.id);
@@ -271,7 +271,7 @@ export const deleteProduct = async (req, res, next) => {
     }
 };
 
-// @desc  Update stock only (used by Inventory module)
+
 export const updateStock = async (req, res, next) => {
     try {
         const { stock } = req.body;

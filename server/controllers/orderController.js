@@ -56,10 +56,7 @@ export const getOrderById = async (req, res) => {
     }
 };
 
-// FIXED: was using req.user._id (undefined, since JWT payload only has `id`)
-// and was returning { order } instead of { orders } — the frontend reads
-// response.data.orders, so the mismatched key alone caused an empty list
-// even when the id filter worked.
+
 export const getMyOrders = async (req, res) => {
     console.log("getMyOrders hit, user:", req.user); // temporary debug line
     try {

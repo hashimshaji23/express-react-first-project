@@ -249,7 +249,7 @@ const Product = () => {
                     </div>
 
                     {/* Search */}
-                    <div className="filter-group">
+                    {/* <div className="filter-group">
                         <label>Search</label>
 
                         <div className="search-box">
@@ -265,7 +265,7 @@ const Product = () => {
                                 }}
                             />
                         </div>
-                    </div>
+                    </div> */}
 
                     {/* Category */}
                     <div className="filter-group">
@@ -288,7 +288,7 @@ const Product = () => {
                     </div>
 
                     {/* Brand */}
-                    <div className="filter-group">
+                    {/* <div className="filter-group">
                         <label>Brand</label>
 
                         <input
@@ -300,7 +300,7 @@ const Product = () => {
                                 setPage(1);
                             }}
                         />
-                    </div>
+                    </div> */}
 
                     {/* Price */}
                     <div className="filter-group">
