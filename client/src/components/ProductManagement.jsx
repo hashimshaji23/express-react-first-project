@@ -1,5 +1,6 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import API from "../api/axios";
+import { PRODUCT_CATEGORIES } from "../constants/categories";
 import "./ProductManagement.css";
 
 const PRODUCTS_LIST_URL = "/api/products"; // GET
@@ -88,6 +89,24 @@ const ProductManagement = () => {
         fetchCategories();
     }, []);
 
+    const categoryOptions = useMemo(() => {
+        const byKey = new Map(
+            PRODUCT_CATEGORIES.map((cat) => [cat.slug, cat.name])
+        );
+
+        categories.forEach((cat) => {
+            const name = (cat.name || "").trim();
+            if (!name) return;
+            const key = (cat.slug || name).toLowerCase().replace(/\s+/g, "-");
+            const already = [...byKey.entries()].some(
+                ([, existingName]) => existingName.toLowerCase() === name.toLowerCase()
+            );
+            if (!already) byKey.set(key, name);
+        });
+
+        return [...byKey.values()];
+    }, [categories]);
+
     // ---------- Form open/close ----------
 
     const openCreateForm = () => {
@@ -105,7 +124,16 @@ const ProductManagement = () => {
         setForm({
             name: product.name || "",
             description: product.description || "",
-            category: product.category?._id || product.category || "",
+            category: (() => {
+                const raw = product.category?.name || product.category || "";
+                const match = categories.find(
+                    (c) => c._id === raw || (c.name || "").toLowerCase() === String(raw).toLowerCase()
+                );
+                if (match?.name) return match.name;
+                if (product.category?.name) return product.category.name;
+                if (raw && !/^[0-9a-fA-F]{24}$/.test(String(raw))) return raw;
+                return "";
+            })(),
             customCategory: "",
             brand: product.brand || "",
             price: product.price ?? "",
@@ -516,9 +544,9 @@ const ProductManagement = () => {
                                 onChange={handleFieldChange}
                             >
                                 <option value="">Select Category (Default: General)</option>
-                                {categories.map((cat) => (
-                                    <option key={cat._id} value={cat._id}>
-                                        {cat.name}
+                                {categoryOptions.map((name) => (
+                                    <option key={name} value={name}>
+                                        {name}
                                     </option>
                                 ))}
                                 <option value="custom">+ Create New Category Name</option>

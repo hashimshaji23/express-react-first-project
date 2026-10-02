@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./Product.css";
 import API from "../api/axios";
+import { PRODUCT_CATEGORIES } from "../constants/categories";
 
 const Product = () => {
     const navigate = useNavigate();
@@ -278,10 +279,11 @@ const Product = () => {
                             }}
                         >
                             <option value="">All Categories</option>
-                            <option value="electronics">Electronics</option>
-                            <option value="fashion">Fashion</option>
-                            <option value="shoes">Shoes</option>
-                            <option value="accessories">Accessories</option>
+                            {PRODUCT_CATEGORIES.map((cat) => (
+                                <option key={cat.slug} value={cat.slug}>
+                                    {cat.name}
+                                </option>
+                            ))}
                         </select>
                     </div>
 
