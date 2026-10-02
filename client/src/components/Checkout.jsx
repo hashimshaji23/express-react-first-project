@@ -165,7 +165,7 @@ const Checkout = () => {
                     <h2>{error}</h2>
                     <button
                         className="checkout-secondary-btn"
-                        onClick={() => navigate("/")}
+                        onClick={() => navigate("/Product")}
                     >
                         Go to Products
                     </button>
@@ -183,7 +183,7 @@ const Checkout = () => {
                     <p>Add something to your cart before checking out.</p>
                     <button
                         className="checkout-secondary-btn"
-                        onClick={() => navigate("/")}
+                        onClick={() => navigate("/Product")}
                     >
                         Continue Shopping
                     </button>

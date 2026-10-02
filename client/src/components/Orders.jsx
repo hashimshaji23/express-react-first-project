@@ -64,7 +64,7 @@ const MyOrders = () => {
                     <h2>{error}</h2>
                     <button
                         className="my-orders-btn"
-                        onClick={() => navigate("/")}
+                        onClick={() => navigate("/Product")}
                     >
                         Go to Products
                     </button>
@@ -89,7 +89,7 @@ const MyOrders = () => {
                     <p>Once you place an order, it'll show up here.</p>
                     <button
                         className="my-orders-btn"
-                        onClick={() => navigate("/")}
+                        onClick={() => navigate("/Product")}
                     >
                         Start Shopping
                     </button>

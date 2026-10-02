@@ -166,7 +166,7 @@ const Cart = () => {
                     <h2>{error}</h2>
                     <button
                         className="cart-continue-btn"
-                        onClick={() => navigate("/")}
+                        onClick={() => navigate("/Product")}
                     >
                         Go to Products
                     </button>
@@ -215,7 +215,7 @@ const Cart = () => {
 
                     <button
                         className="cart-continue-btn"
-                        onClick={() => navigate("/")}
+                        onClick={() => navigate("/Product")}
                     >
                         Continue Shopping
                     </button>
@@ -321,7 +321,7 @@ const Cart = () => {
 
                         <button
                             className="cart-continue-btn"
-                            onClick={() => navigate("/")}
+                            onClick={() => navigate("/Product")}
                         >
                             Continue Shopping
                         </button>

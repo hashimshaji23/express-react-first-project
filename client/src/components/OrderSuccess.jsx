@@ -62,7 +62,7 @@ const OrderSuccess = () => {
 
                     <button
                         className="order-success-btn"
-                        onClick={() => navigate("/")}
+                        onClick={() => navigate("/Product")}
                     >
                         Continue Shopping
                     </button>

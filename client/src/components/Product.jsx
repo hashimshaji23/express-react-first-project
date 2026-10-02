@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "../api/axios.js";
 import "./Product.css";
 import API from "../api/axios";
 
@@ -23,6 +22,11 @@ const Product = () => {
 
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
+
+    // Single Product View modal state
+    const [selectedProduct, setSelectedProduct] = useState(null);
+    const [selectedImage, setSelectedImage] = useState("");
+    const [modalQty, setModalQty] = useState(1);
 
     // Tracks which product ids are currently being added, and which were just added
     const [addingIds, setAddingIds] = useState(new Set());
@@ -55,7 +59,7 @@ const Product = () => {
             );
 
             setProducts(response.data.products);
-            setTotalPages(response.data.totalPages);
+            setTotalPages(response.data.totalPages || 1);
 
         } catch (error) {
             console.log(error);
@@ -79,10 +83,10 @@ const Product = () => {
         page,
     ]);
 
-    // Fetch cart item count once, so the header badge is accurate on load
+    // Fetch cart item count once
     const getCartCount = async () => {
         const token = localStorage.getItem("token");
-        if (!token) return; // not logged in, skip silently
+        if (!token) return;
 
         try {
             const response = await API.get("/api/cart", {
@@ -113,15 +117,28 @@ const Product = () => {
         setPage(1);
     };
 
-    // Show a small toast message for a couple seconds
+    // Show toast message
     const flashMessage = (text) => {
         setCartMessage(text);
-        setTimeout(() => setCartMessage(""), 2000);
+        setTimeout(() => setCartMessage(""), 2500);
     };
 
-    // Add to cart — called when the 🛒 button is clicked
-    const handleAddToCart = async (productId) => {
-        // avoid double-clicks while a request for this product is in flight
+    // Single product modal handlers
+    const openProductModal = (product) => {
+        setSelectedProduct(product);
+        const mainImg = product.image || product.images?.[0]?.url || "https://via.placeholder.com/400";
+        setSelectedImage(mainImg);
+        setModalQty(1);
+    };
+
+    const closeProductModal = () => {
+        setSelectedProduct(null);
+    };
+
+    // Add to cart
+    const handleAddToCart = async (productId, quantity = 1, e) => {
+        if (e) e.stopPropagation();
+
         if (addingIds.has(productId)) return;
 
         setAddingIds((prev) => new Set(prev).add(productId));
@@ -141,7 +158,7 @@ const Product = () => {
 
             const response = await API.post(
                 "/api/cart",
-                { productId, quantity: 1 },
+                { productId, quantity },
                 {
                     headers: {
                         Authorization: `Bearer ${token}`,
@@ -153,14 +170,10 @@ const Product = () => {
             const serverMessage = response.data?.message || "Added to cart";
             flashMessage(serverMessage);
 
-            // Only bump the badge when a NEW cart line was created —
-            // your controller returns "Product added to cart" for a new item
-            // vs "Cart quantity updated" when it already existed.
             if (serverMessage === "Product added to cart") {
                 setCartCount((prev) => prev + 1);
             }
 
-            // revert the "added" checkmark back to the cart icon after a bit
             setTimeout(() => {
                 setAddedIds((prev) => {
                     const next = new Set(prev);
@@ -191,7 +204,7 @@ const Product = () => {
             <div className="product-header">
                 <div>
                     <h1>Explore Products</h1>
-                    <p>Find the perfect products for you</p>
+                    <p>Find the best quality products at unbeatable prices</p>
                 </div>
 
                 <div className="product-header__right">
@@ -265,18 +278,10 @@ const Product = () => {
                             }}
                         >
                             <option value="">All Categories</option>
-                            <option value="electronics">
-                                Electronics
-                            </option>
-                            <option value="fashion">
-                                Fashion
-                            </option>
-                            <option value="shoes">
-                                Shoes
-                            </option>
-                            <option value="accessories">
-                                Accessories
-                            </option>
+                            <option value="electronics">Electronics</option>
+                            <option value="fashion">Fashion</option>
+                            <option value="shoes">Shoes</option>
+                            <option value="accessories">Accessories</option>
                         </select>
                     </div>
 
@@ -297,7 +302,7 @@ const Product = () => {
 
                     {/* Price */}
                     <div className="filter-group">
-                        <label>Price Range</label>
+                        <label>Price Range (₹)</label>
 
                         <div className="price-inputs">
                             <input
@@ -345,15 +350,14 @@ const Product = () => {
 
                 </aside>
 
-                {/* ================= PRODUCTS ================= */}
+                {/* ================= PRODUCTS GRID ================= */}
                 <main className="products-section">
 
                     {/* Sort */}
                     <div className="products-top">
-
                         <p>
                             {loading
-                                ? "Loading..."
+                                ? "Loading products..."
                                 : `Showing ${products.length} products`}
                         </p>
 
@@ -364,27 +368,12 @@ const Product = () => {
                                 setPage(1);
                             }}
                         >
-                            <option value="">
-                                Sort By
-                            </option>
-
-                            <option value="newest">
-                                Newest
-                            </option>
-
-                            <option value="price_asc">
-                                Price: Low to High
-                            </option>
-
-                            <option value="price_desc">
-                                Price: High to Low
-                            </option>
-
-                            <option value="rating">
-                                Highest Rated
-                            </option>
+                            <option value="">Sort By: Default</option>
+                            <option value="newest">Newest</option>
+                            <option value="price_asc">Price: Low to High</option>
+                            <option value="price_desc">Price: High to Low</option>
+                            <option value="rating">Highest Rated</option>
                         </select>
-
                     </div>
 
                     {/* Error */}
@@ -396,138 +385,157 @@ const Product = () => {
 
                     {/* Loading */}
                     {loading ? (
-
                         <div className="loading">
                             <div className="spinner"></div>
                             <p>Loading products...</p>
                         </div>
-
                     ) : products.length === 0 ? (
-
                         <div className="no-products">
                             <div>🛍️</div>
                             <h2>No Products Found</h2>
-                            <p>
-                                Try changing your filters or search.
-                            </p>
-
+                            <p>Try adjusting your search query or filters.</p>
                             <button onClick={clearFilters}>
                                 Clear Filters
                             </button>
                         </div>
-
                     ) : (
-
                         <div className="product-grid">
+                            {products.map((product) => {
+                                const mainImage =
+                                    product.image ||
+                                    product.images?.[0]?.url ||
+                                    "https://via.placeholder.com/400";
 
-                            {products.map((product) => (
+                                const displayPrice = product.discountPrice && product.discountPrice < product.price
+                                    ? product.discountPrice
+                                    : product.price;
 
-                                <div
-                                    className="product-card"
-                                    key={product._id}
-                                >
+                                const hasDiscount = product.discountPrice && product.discountPrice < product.price;
+                                const discountPct = hasDiscount
+                                    ? Math.round(((product.price - product.discountPrice) / product.price) * 100)
+                                    : 0;
 
-                                    {/* Image */}
-                                    <div className="product-image">
+                                return (
+                                    <div
+                                        className="product-card"
+                                        key={product._id}
+                                        onClick={() => openProductModal(product)}
+                                    >
+                                        {/* Image Box */}
+                                        <div className="product-image">
+                                            <img
+                                                src={mainImage}
+                                                alt={product.name}
+                                            />
 
-                                        <img
-                                            src={
-                                                product.image ||
-                                                product.images?.[0]?.url ||
-                                                "https://via.placeholder.com/400"
-                                            }
-                                            alt={product.name}
-                                        />
+                                            {hasDiscount && (
+                                                <span className="product-badge-discount">
+                                                    {discountPct}% OFF
+                                                </span>
+                                            )}
 
-                                        <button className="wishlist">
-                                            ♡
-                                        </button>
-
-                                    </div>
-
-                                    {/* Product Info */}
-                                    <div className="product-info">
-
-                                        <span className="product-brand">
-                                            {product.brand}
-                                        </span>
-
-                                        <h3>
-                                            {product.name}
-                                        </h3>
-
-                                        <div className="rating">
-
-                                            <span>
-                                                ⭐
-                                            </span>
-
-                                            <strong>
-                                                {product.ratingsAverage
-                                                    ? product.ratingsAverage.toFixed(1)
-                                                    : "0.0"}
-                                            </strong>
-
-                                            <span className="review-count">
-                                                ({product.ratingsQuantity || 0})
-                                            </span>
-
+                                            <div className="product-image-overlay">
+                                                <button
+                                                    className="quick-view-btn"
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        openProductModal(product);
+                                                    }}
+                                                >
+                                                    👁 Quick View
+                                                </button>
+                                            </div>
                                         </div>
 
-                                        <div className="product-bottom">
+                                        {/* Product Info */}
+                                        <div className="product-info">
+                                            <div className="product-meta">
+                                                {product.brand && (
+                                                    <span className="product-brand">
+                                                        {product.brand}
+                                                    </span>
+                                                )}
+                                                {product.category?.name && (
+                                                    <span className="product-cat-tag">
+                                                        {product.category.name}
+                                                    </span>
+                                                )}
+                                            </div>
 
-                                            <span className="price">
-                                                ₹{product.price}
-                                            </span>
+                                            <h3 className="product-title" title={product.name}>
+                                                {product.name}
+                                            </h3>
 
-                                            <button
-                                                className={`cart-btn ${addedIds.has(product._id)
-                                                        ? "cart-btn--added"
-                                                        : ""
-                                                    }`}
-                                                disabled={addingIds.has(product._id)}
-                                                onClick={() =>
-                                                    handleAddToCart(product._id)
-                                                }
-                                                aria-label="Add to cart"
-                                            >
-                                                {addingIds.has(product._id)
-                                                    ? "…"
-                                                    : addedIds.has(product._id)
-                                                        ? "✅"
-                                                        : "🛒"}
-                                            </button>
+                                            {/* Description preview */}
+                                            <p className="product-description-preview">
+                                                {product.description
+                                                    ? product.description
+                                                    : "High quality product with premium features."}
+                                            </p>
 
+                                            {/* Rating */}
+                                            <div className="rating">
+                                                <span>⭐</span>
+                                                <strong>
+                                                    {product.ratingsAverage
+                                                        ? product.ratingsAverage.toFixed(1)
+                                                        : "0.0"}
+                                                </strong>
+                                                <span className="review-count">
+                                                    ({product.numReviews || product.ratingsQuantity || 0})
+                                                </span>
+                                            </div>
+
+                                            {/* Pricing & Cart Action */}
+                                            <div className="product-bottom">
+                                                <div className="price-container">
+                                                    <span className="price-current">
+                                                        ₹{displayPrice}
+                                                    </span>
+                                                    {hasDiscount && (
+                                                        <span className="price-original">
+                                                            ₹{product.price}
+                                                        </span>
+                                                    )}
+                                                </div>
+
+                                                <button
+                                                    className={`cart-btn ${addedIds.has(product._id) ? "cart-btn--added" : ""}`}
+                                                    disabled={addingIds.has(product._id) || product.stock === 0}
+                                                    onClick={(e) => handleAddToCart(product._id, 1, e)}
+                                                    aria-label="Add to cart"
+                                                    title={product.stock === 0 ? "Out of Stock" : "Add to Cart"}
+                                                >
+                                                    {addingIds.has(product._id)
+                                                        ? "…"
+                                                        : addedIds.has(product._id)
+                                                            ? "✅"
+                                                            : product.stock === 0
+                                                                ? "🚫"
+                                                                : "🛒"}
+                                                </button>
+                                            </div>
                                         </div>
-
                                     </div>
-
-                                </div>
-
-                            ))}
-
+                                );
+                            })}
                         </div>
-
                     )}
 
                     {/* Pagination */}
-                    {!loading && products.length > 0 && (
+                    {!loading && products.length > 0 && totalPages > 1 && (
                         <div className="pagination">
-
                             <button
                                 disabled={page === 1}
-                                onClick={() =>
-                                    setPage(page - 1)
-                                }
+                                onClick={() => setPage(page - 1)}
                             >
-                                ←
+                                ← Prev
                             </button>
 
                             {Array.from(
                                 { length: totalPages },
                                 (_, index) => index + 1
                             ).map((pageNumber) => (
-
                                 <button
                                     key={pageNumber}
                                     className={
@@ -535,30 +543,158 @@ const Product = () => {
                                             ? "active-page"
                                             : ""
                                     }
-                                    onClick={() =>
-                                        setPage(pageNumber)
-                                    }
+                                    onClick={() => setPage(pageNumber)}
                                 >
                                     {pageNumber}
                                 </button>
-
                             ))}
 
                             <button
                                 disabled={page === totalPages}
-                                onClick={() =>
-                                    setPage(page + 1)
-                                }
+                                onClick={() => setPage(page + 1)}
                             >
-                                →
+                                Next →
                             </button>
-
                         </div>
                     )}
 
                 </main>
-
             </div>
+
+            {/* ================= SINGLE PRODUCT VIEW MODAL ================= */}
+            {selectedProduct && (
+                <div className="product-modal-overlay" onClick={closeProductModal}>
+                    <div
+                        className="product-modal-content"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <button
+                            className="product-modal-close"
+                            onClick={closeProductModal}
+                            aria-label="Close product view"
+                        >
+                            ✕
+                        </button>
+
+                        <div className="product-modal-grid">
+                            {/* Left: Product Images */}
+                            <div className="product-modal-gallery">
+                                <div className="product-modal-main-image">
+                                    <img src={selectedImage} alt={selectedProduct.name} />
+                                </div>
+
+                                {selectedProduct.images && selectedProduct.images.length > 1 && (
+                                    <div className="product-modal-thumbnails">
+                                        {selectedProduct.images.map((imgObj, idx) => {
+                                            const url = imgObj.url || imgObj;
+                                            return (
+                                                <button
+                                                    key={idx}
+                                                    className={`thumbnail-btn ${selectedImage === url ? "active" : ""}`}
+                                                    onClick={() => setSelectedImage(url)}
+                                                >
+                                                    <img src={url} alt={`${selectedProduct.name} ${idx + 1}`} />
+                                                </button>
+                                            );
+                                        })}
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Right: Detailed Info */}
+                            <div className="product-modal-details">
+                                <div className="product-modal-meta">
+                                    {selectedProduct.brand && (
+                                        <span className="product-modal-brand">
+                                            {selectedProduct.brand}
+                                        </span>
+                                    )}
+                                    {selectedProduct.category?.name && (
+                                        <span className="product-modal-category">
+                                            {selectedProduct.category.name}
+                                        </span>
+                                    )}
+                                </div>
+
+                                <h2 className="product-modal-title">{selectedProduct.name}</h2>
+
+                                <div className="product-modal-rating">
+                                    <span className="stars">⭐ {selectedProduct.ratingsAverage ? selectedProduct.ratingsAverage.toFixed(1) : "0.0"}</span>
+                                    <span className="count">({selectedProduct.numReviews || selectedProduct.ratingsQuantity || 0} customer reviews)</span>
+                                </div>
+
+                                <div className="product-modal-pricing">
+                                    <span className="current-price">
+                                        ₹{selectedProduct.discountPrice && selectedProduct.discountPrice < selectedProduct.price
+                                            ? selectedProduct.discountPrice
+                                            : selectedProduct.price}
+                                    </span>
+                                    {selectedProduct.discountPrice && selectedProduct.discountPrice < selectedProduct.price && (
+                                        <>
+                                            <span className="original-price">₹{selectedProduct.price}</span>
+                                            <span className="discount-badge">
+                                                {Math.round(((selectedProduct.price - selectedProduct.discountPrice) / selectedProduct.price) * 100)}% OFF
+                                            </span>
+                                        </>
+                                    )}
+                                </div>
+
+                                <div className="product-modal-stock">
+                                    {selectedProduct.stock > 0 ? (
+                                        <span className="stock-badge in-stock">
+                                            ✓ In Stock ({selectedProduct.stock} units left)
+                                        </span>
+                                    ) : (
+                                        <span className="stock-badge out-of-stock">
+                                            ✕ Out of Stock
+                                        </span>
+                                    )}
+                                </div>
+
+                                <div className="product-modal-description">
+                                    <h4>Product Description</h4>
+                                    <p>
+                                        {selectedProduct.description ||
+                                            "No detailed description provided for this product."}
+                                    </p>
+                                </div>
+
+                                <div className="product-modal-actions">
+                                    <div className="quantity-selector">
+                                        <label>Qty:</label>
+                                        <button
+                                            disabled={modalQty <= 1}
+                                            onClick={() => setModalQty((q) => Math.max(1, q - 1))}
+                                        >
+                                            -
+                                        </button>
+                                        <span className="qty-number">{modalQty}</span>
+                                        <button
+                                            disabled={selectedProduct.stock > 0 && modalQty >= selectedProduct.stock}
+                                            onClick={() => setModalQty((q) => q + 1)}
+                                        >
+                                            +
+                                        </button>
+                                    </div>
+
+                                    <button
+                                        className="product-modal-cart-btn"
+                                        disabled={selectedProduct.stock === 0 || addingIds.has(selectedProduct._id)}
+                                        onClick={(e) => handleAddToCart(selectedProduct._id, modalQty, e)}
+                                    >
+                                        {addingIds.has(selectedProduct._id)
+                                            ? "Adding to Cart..."
+                                            : addedIds.has(selectedProduct._id)
+                                                ? "✅ Added to Cart"
+                                                : "🛒 Add to Cart"}
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
         </div>
     );
 };

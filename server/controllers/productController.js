@@ -162,9 +162,20 @@ export const updateProduct = async (req, res, next) => {
 };
 
 // @desc  Remove a single image from a product (admin)
+const decodePublicId = (value) => {
+    const raw = Array.isArray(value) ? value.join("/") : value;
+    if (!raw) return "";
+    try {
+        return decodeURIComponent(raw);
+    } catch {
+        return raw;
+    }
+};
+
 export const deleteProductImage = async (req, res, next) => {
     try {
-        const { id, publicId } = req.params;
+        const { id } = req.params;
+        const publicId = decodePublicId(req.params.publicId);
         const product = await Product.findById(id);
         if (!product) {
             return res.status(404).json({ success: false, message: "Product not found" });
