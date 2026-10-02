@@ -204,8 +204,8 @@ const Product = () => {
             {/* Header */}
             <div className="product-header">
                 <div>
-                    <h1>Explore Products</h1>
-                    <p>Find the best quality products at unbeatable prices</p>
+                    <h1>Discover Something You’ll Love</h1>
+                    <p>Shop quality products at great prices.</p>
                 </div>
 
                 <div className="product-header__right">
